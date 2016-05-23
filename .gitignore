@@ -1,3 +1,17 @@
+# Pastes
+bin
+obj
+
+#codeblocks files
+*.cbp
+*.depend
+*.layout
+
+#game files
+*.png
+*.ttf
+*.wav
+
 # Compiled Object files
 *.slo
 *.lo
@@ -26,3 +40,13 @@
 *.exe
 *.out
 *.app
+
+############  
+## Windows  
+############  
+
+# Windows image file caches  
+Thumbs.db  
+
+# Folder config file  
+Desktop.ini
