@@ -10,15 +10,15 @@ enum Team{
 class Hero{
     static int numOfHeroes;
     const int speed;
+    const Team team;
+    const int init_hp;
+    int hp;
     int moveTime;
     Point *point;
     Image* image;
-    const Team team;
 public:
-    int hp;
-    Hero(int _speed, int x, int y, Image* _image, Team _team):speed(_speed),team(_team){
-
-        hp = 100;
+    Hero(int _speed, int x, int y, Image* _image, Team _team, int _init_hp):speed(_speed),team(_team),init_hp(_init_hp){
+        hp = init_hp;
         image = _image;
         point = new Point(x,y);
         moveTime = 0;
@@ -35,8 +35,23 @@ public:
         Pixel_Point pixel = find_rec(point);
         al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,0);
     }
+    int get_hp(){
+        return hp;
+    }
     int get_speed(){
         return speed;
+    }
+    int get_max_hp(){
+        return init_hp;
+    }
+    //addition or subtraction of hp
+    void add_hp(int value){
+        hp+=value;
+        //the limits of hp
+        if(hp<0)
+            hp=0;
+        if(hp>init_hp)
+            hp=init_hp;
     }
     //start the count for the next move
     void set_move(){

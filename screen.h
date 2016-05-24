@@ -29,6 +29,7 @@
 
 using namespace std;
 
+//coordinates in pixels
 class Pixel_Point{
 public:
     int x, y;
@@ -38,6 +39,7 @@ public:
         y=_y;
     }
 };
+//coordinates in tiles
 class Point{
 public:
     int x, y;

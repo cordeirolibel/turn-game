@@ -1,4 +1,4 @@
-﻿//#include <stdio.h>
+﻿#include <stdio.h>
 #include <iostream>
 
 #include "screen.h"
@@ -33,19 +33,17 @@ int main(int argc, char **argv){
         //mouse click
         else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
         {
+            //copy mouse position
+            Pixel_Point pixel = game->get_mouse_pixel();
             //in map, not menu options
-            if(game->mouse->get_y()>BAR_OPTIONS){
+            if(pixel.y>BAR_OPTIONS){
                 //find the tile click
-                Point point = find_rec(game->mouse->get_pixel());
+                Point point = find_rec(&pixel);
                 game->tile_click( point, &lastTileSelected,&heroFlag);
             }
             //in menu, not map
             else{
             }
-        }
-        else if (event.type == ALLEGRO_EVENT_KEY_UP)
-        {
-            game->heroes[0]->hp--;
         }
         //if press in X (close)
         else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
