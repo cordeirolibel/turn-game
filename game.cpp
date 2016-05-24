@@ -4,7 +4,9 @@
 #include "screen.h"
 #include "mapa.h"
 #include "hero.h"
+#include "menu.h"
 #include "game.h"
+
 
 using namespace std;
 
@@ -40,6 +42,10 @@ int main(int argc, char **argv){
             //in menu, not map
             else{
             }
+        }
+        else if (event.type == ALLEGRO_EVENT_KEY_UP)
+        {
+            game->heroes[0]->hp--;
         }
         //if press in X (close)
         else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)

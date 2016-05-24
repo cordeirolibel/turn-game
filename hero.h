@@ -3,14 +3,22 @@
 //defined in screen.h
 class Point;
 
+enum Team{
+    UM,DOIS
+};
+
 class Hero{
     static int numOfHeroes;
     const int speed;
     int moveTime;
     Point *point;
     Image* image;
+    const Team team;
 public:
-    Hero(int _speed, int x, int y, Image* _image):speed(_speed){
+    int hp;
+    Hero(int _speed, int x, int y, Image* _image, Team _team):speed(_speed),team(_team){
+
+        hp = 100;
         image = _image;
         point = new Point(x,y);
         moveTime = 0;

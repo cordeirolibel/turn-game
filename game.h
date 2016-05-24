@@ -9,14 +9,17 @@
 
 #define MAX_HEROES 50
 
+class Menu;
+
 class Game:public Screen{
     Font *font;
-    Image *menu;
     Image *hero_img;
     Map* mapa;
-    Hero** heroes;
+    Menu* menu;
+
 public:
     Mouse *mouse;
+    Hero** heroes; //=======================================================================================================
     Game(){
     }
     int initialize(){
@@ -26,13 +29,13 @@ public:
         //open the files
         font = new Font(FONT1,SIZE_FONT1);
         mouse = new Mouse(CURSOR);
-        menu = new Image(MENU);
         hero_img = new Image(HERO);
         mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
         heroes = new Hero*[MAX_HEROES];
+        menu = new Menu(MENU);
         //======================================TEST - DELETAR
         int x=2,y=2;
-        heroes[0] = new Hero(8.2,x,y,hero_img);
+        heroes[0] = new Hero(8.2,x,y,hero_img,UM);
         mapa->tiles[y-1][x-1]->hero = heroes[0];
         //======================================
         return 0;
@@ -52,7 +55,7 @@ public:
         //print map
         al_draw_bitmap(mapa->get_bitmap(),0,BAR_OPTIONS,0);
         //print menu bar
-        al_draw_bitmap(menu->get_bitmap(),0,0,0);
+        draw_menu();
         //draw all heroes
         for(int i=0;i<Hero::get_num_of_heroes(); i++)
             heroes[i]->draw_hero();
@@ -63,6 +66,17 @@ public:
         //flip the screen
         update_screen();
     }
+
+    void draw_menu()
+    {
+        al_draw_bitmap(menu->get_bitmap(),0,0,0);
+        if(menu->hero != NULL)
+        {
+            al_draw_filled_rectangle(60,30,60 + 2*menu->hero->hp,60,RED);
+            al_draw_rectangle(60,30,61 + 2*100,61,BLUE,1);
+        }
+    }
+
     //draw the grid of map
     void draw_rectangles(){
         //print all rectangles
@@ -119,6 +133,7 @@ public:
         mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
         //if a hero into the tile
         if(mapa->tiles[point.y-1][point.x-1]->hero != NULL){
+            menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
             //in the last turn no selected a hero
             if(!*heroFlag){
                 //the weight in start position is 0
@@ -144,6 +159,7 @@ public:
         else if(*heroFlag){
             clear_space_walk(mapa,*lastTileSelected);
             *heroFlag = false;
+            menu->set_hero(NULL);
         }
         //save the last click position
         lastTileSelected->x = point.x;
