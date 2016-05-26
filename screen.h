@@ -8,6 +8,12 @@
 
 #define GAME_NAME "Turno"
 
+#ifdef __linux__
+    #define LINUX true
+#elif _WIN32
+    #define LINUX false
+#endif
+
 #define BLACK al_map_rgb(0,0,0)
 #define GREY al_map_rgb(128,128,128)
 #define WHITE al_map_rgb(255,255,255)
@@ -172,20 +178,22 @@ int Screen::initialize(){
         cout << "Failed to initialize the al_init_image_addon!\n";
         return -1;
     }
-    //Initialize Audio
-    if(!al_install_audio()){
-        cout << "Failed to initialize audio!\n";
-        return -1;
-    }
-    //Initialize Codecs
-    if(!al_init_acodec_addon()){
-        cout << "Failed to initialize audio codecs!\n";
-        return -1;
-    }
-    //Reserves a number of sample instances, and creates a default mixer if one doesn't exist. This allows us to decide how many audio samples we will be creating for now we are only creating one.
-    if (!al_reserve_samples(1)){
-        cout << "Failed to reserve samples!\n";
-        return -1;
+    if(!LINUX){
+        //Initialize Audio
+        if(!al_install_audio()){
+            cout << "Failed to initialize audio!\n";
+            return -1;
+        }
+        //Initialize Codecs
+        if(!al_init_acodec_addon()){
+            cout << "Failed to initialize audio codecs!\n";
+            return -1;
+        }
+        //Reserves a number of sample instances, and creates a default mixer if one doesn't exist. This allows us to decide how many audio samples we will be creating for now we are only creating one.
+        if (!al_reserve_samples(1)){
+            cout << "Failed to reserve samples!\n";
+            return -1;
+        }
     }
     //Enable mouse
     if (!al_install_mouse())

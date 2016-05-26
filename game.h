@@ -20,7 +20,7 @@ int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
 
 class Game:public Screen{
     Font *font;
-    Image *hero_img;
+    Image *hero_soldier;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
@@ -35,18 +35,27 @@ public:
         delete menu;
         delete font;
         delete mouse;
-        delete hero_img;
+        delete hero_soldier;
+        //deallocate heroes
+        int n_heroes = Hero::get_num_of_heroes();
+        for(int i=0;i<n_heroes;i++)
+            delete heroes[i];
+        delete heroes;
     }
+    //initialize the initial configurations
     int initialize();
+    //initialize the all heroes
+    void init_heroes();
     //update the screen with new informations
     void draw_update();
+    //draw the menu informations
     void draw_menu();
     //draw the grid of map
     void draw_rectangles();
+    //updates game when click in tile point
+    void tile_click(Point point,Point* lastTileSelected,bool* heroFlag);
     //function use recursion, animate the walk of hero
     void move_hero(Tile* actualTile, Tile* nextTile);
-    //updates mapa when click in tile point
-    void tile_click(Point point,Point* lastTileSelected,bool* heroFlag);
     //if the hero is move, animate the walk
     void move_heroes (){
         for(int i=0;i<Hero::get_num_of_heroes(); i++)
@@ -69,15 +78,12 @@ int Game::initialize(){
     //open the files
     font = new Font(FONT1,SIZE_FONT1);
     mouse = new Mouse(CURSOR);
-    hero_img = new Image(HERO);
+    hero_soldier = new Image(HERO);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
     menu = new Menu(MENU);
-    //======================================TEST - DELETAR
-    int x=2,y=2;
-    heroes[0] = new Hero(8.2,x,y,hero_img,UM,50);
-    mapa->tiles[y-1][x-1]->hero = heroes[0];
-    //======================================
+    //create the heroes
+    init_heroes();
     return 0;
 }
 //update the screen with new informations
@@ -126,6 +132,58 @@ void Game::draw_rectangles(){
             al_draw_rectangle(mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,mapa->tiles[i][j]->pixel->x+SIZE_TILE-1,mapa->tiles[i][j]->pixel->y+SIZE_TILE-1,mapa->tiles[i][j]->color(),1);
 }
 
+//updates mapa when click in tile point
+void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
+    //clicked in the same position, do anything
+    if((lastTileSelected->x == point.x)&&(lastTileSelected->y == point.y))
+        return;
+    //clear any tile selected
+    mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
+    //draw actual rectangle
+    mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
+    //if a hero into the tile
+    if(mapa->tiles[point.y-1][point.x-1]->hero != NULL){
+        //in the last turn no selected a hero
+        if(!*heroFlag){
+            menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
+            //the weight in start position is 0
+            mapa->tiles[point.y-1][point.x-1]->weight = 0;
+            //find the space of walk for the hero
+            space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed());
+            //save the last click is a hero
+            *heroFlag = true;
+        }
+        //in the last turn selected a hero and new selected hero
+        else{
+            //draw last rectangle
+            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(WHITE);
+            return;
+        }
+    }
+    //if the last click is a hero, and the new click in the range of hero
+    else if((*heroFlag)&&(mapa->tiles[point.y-1][point.x-1]->weight<WEIGHT_MAX)){
+        //move the hero
+        move_hero(mapa->tiles[point.y-1][point.x-1], NULL);
+        //clear the range space
+        clear_space_walk(mapa,*lastTileSelected);
+        //draw actual rectangle
+        mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
+        //the weight in start position is 0
+        mapa->tiles[point.y-1][point.x-1]->weight = 0;
+        //find the space of walk for the hero
+        space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed());
+    }
+    //if the last click is a hero, and the new click out of the range of hero
+    else if(*heroFlag){
+        clear_space_walk(mapa,*lastTileSelected);
+        *heroFlag = false;
+        menu->set_hero(NULL);
+    }
+    //save the last click position
+    lastTileSelected->x = point.x;
+    lastTileSelected->y = point.y;
+}
+
 //function use recursion, animate the walk of hero
 void Game::move_hero(Tile* actualTile, Tile* nextTile){
     //recursion for find the start point
@@ -157,46 +215,51 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     actualTile->hero = NULL;
 }
 
-//updates mapa when click in tile point
-void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
-    //clicked in the same position, do anything
-    if((lastTileSelected->x == point.x)&&(lastTileSelected->y == point.y))
-        return;
-    //clear any tile selected
-    mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-    //draw actual rectangle
-    mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-    //if a hero into the tile
-    if(mapa->tiles[point.y-1][point.x-1]->hero != NULL){
-        menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-        //in the last turn no selected a hero
-        if(!*heroFlag){
-            //the weight in start position is 0
-            mapa->tiles[point.y-1][point.x-1]->weight = 0;
-            //find the space of walk for the hero
-            space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed());
-            //save the last click is a hero
-            *heroFlag = true;
-        }
-        //in the last turn selected a hero and new selected hero
-        else{
-
-        }
-    }
-    //if the last click is a hero, and the new click in the range of hero
-    else if((*heroFlag)&&(mapa->tiles[point.y-1][point.x-1]->weight<WEIGHT_MAX)){
-        //move the hero
-        move_hero(mapa->tiles[point.y-1][point.x-1], NULL);
-        //clear the range space
-        clear_space_walk(mapa,*lastTileSelected);
-    }
-    //if the last click is a hero, and the new click out of the range of hero
-    else if(*heroFlag){
-        clear_space_walk(mapa,*lastTileSelected);
-        *heroFlag = false;
-        menu->set_hero(NULL);
-    }
-    //save the last click position
-    lastTileSelected->x = point.x;
-    lastTileSelected->y = point.y;
+//initialize the all heroes
+void Game::init_heroes(){
+    int x=2,y=2;
+    //soldier 1 team 1
+    heroes[0] = new Hero(hero_soldier,x,y,50,7.2,UM);
+    mapa->tiles[y-1][x-1]->hero = heroes[0];
+    y+=2;
+    //soldier 2 team 1
+    heroes[1] = new Hero(hero_soldier,x,y,50,7,UM);
+    mapa->tiles[y-1][x-1]->hero = heroes[1];
+    y+=2;
+    //soldier 3 team 1
+    heroes[2] = new Hero(hero_soldier,x,y,50,7,UM);
+    mapa->tiles[y-1][x-1]->hero = heroes[2];
+    y+=2;
+    //soldier 4 team 1
+    heroes[3] = new Hero(hero_soldier,x,y,50,7,UM);
+    mapa->tiles[y-1][x-1]->hero = heroes[3];
+    y+=2;
+    //soldier 5 team 1
+    heroes[4] = new Hero(hero_soldier,x,y,50,7,UM);
+    mapa->tiles[y-1][x-1]->hero = heroes[4];
+    y+=2;
+    //==============//
+    //TEAM2
+    x=38;
+    y=2;
+    //soldier 1 team 2
+    heroes[5] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    mapa->tiles[y-1][x-1]->hero = heroes[5];
+    y+=2;
+   //soldier 2 team 2
+    heroes[6] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    mapa->tiles[y-1][x-1]->hero = heroes[6];
+    y+=2;
+    //soldier 3 team 2
+    heroes[7] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    mapa->tiles[y-1][x-1]->hero = heroes[7];
+    y+=2;
+    //soldier 4 team 2
+    heroes[8] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    mapa->tiles[y-1][x-1]->hero = heroes[8];
+    y+=2;
+    //soldier 5 team 2
+    heroes[9] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    mapa->tiles[y-1][x-1]->hero = heroes[9];
+    y+=2;
 }

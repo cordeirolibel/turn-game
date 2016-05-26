@@ -8,16 +8,16 @@ enum Team{
 };
 
 class Hero{
-    static int numOfHeroes;
     const int speed;
     const Team team;
     const int init_hp;
+    static int numOfHeroes;
     int hp;
     int moveTime;
     Point *point;
     Image* image;
 public:
-    Hero(int _speed, int x, int y, Image* _image, Team _team, int _init_hp):speed(_speed),team(_team),init_hp(_init_hp){
+    Hero(Image* _image, int x, int y, int _init_hp,int _speed, Team _team):speed(_speed),team(_team),init_hp(_init_hp){
         hp = init_hp;
         image = _image;
         point = new Point(x,y);
