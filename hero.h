@@ -11,13 +11,15 @@ class Hero{
     const int speed;
     const Team team;
     const int init_hp;
+    const int atk;
     static int numOfHeroes;
     int hp;
     int moveTime;
     Point *point;
     Image* image;
+
 public:
-    Hero(Image* _image, int x, int y, int _init_hp,int _speed, Team _team):speed(_speed),team(_team),init_hp(_init_hp){
+    Hero(Image* _image, int x, int y, int _init_hp,int _atk, int _speed, Team _team):speed(_speed),team(_team),init_hp(_init_hp),atk(_atk){
         hp = init_hp;
         image = _image;
         point = new Point(x,y);
@@ -34,6 +36,9 @@ public:
     void draw_hero(){
         Pixel_Point pixel = find_rec(point);
         al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,0);
+    }
+    int get_atk(){
+        return atk;
     }
     int get_hp(){
         return hp;

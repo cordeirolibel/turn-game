@@ -3,7 +3,7 @@
 #define FUNDO "map.png"
 #define CURSOR "cursor.png"
 #define MENU "menu.png"
-#define HERO "hero.png"
+#define HERO "mage_blue.png"
 #define FONT1 "pirulen.ttf"
 #define SIZE_FONT1 14
 
@@ -115,12 +115,16 @@ void Game::draw_menu()
     {
         //print the rectangle of hp
         int pixels_hp = mapping(hero->get_hp(),0,hero->get_max_hp(),0,200);
-        al_draw_filled_rectangle(60,30,60 + pixels_hp,60,RED);
-        al_draw_rectangle(60,30,61 + 200,61,WHITE,1);
+        al_draw_filled_rectangle(90,30,60 + pixels_hp,60,RED);
+        al_draw_rectangle(90,30,61 + 200,61,WHITE,1);
         //print the text of hp
         char text[MAX_TEXT];
         sprintf(text,"%d\\%d",hero->get_hp(),hero->get_max_hp());
         al_draw_text(font->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, text);
+        //print the atk
+        char atk[MAX_TEXT];
+        sprintf(atk,"%d",hero->get_atk());
+        al_draw_text(font->get_font(), WHITE, 510, 45,ALLEGRO_ALIGN_LEFT, atk);
     }
 }
 
@@ -228,23 +232,23 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
 void Game::init_heroes(){
     int x=2,y=2;
     //soldier 1 team 1
-    heroes[0] = new Hero(hero_soldier,x,y,50,7.2,UM);
+    heroes[0] = new Hero(hero_soldier,x,y,50,10,7,UM);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
     y+=2;
     //soldier 2 team 1
-    heroes[1] = new Hero(hero_soldier,x,y,50,7,UM);
+    heroes[1] = new Hero(hero_soldier,x,y,50,10,7,UM);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
     y+=2;
     //soldier 3 team 1
-    heroes[2] = new Hero(hero_soldier,x,y,50,7,UM);
+    heroes[2] = new Hero(hero_soldier,x,y,50,10,7,UM);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
     y+=2;
     //soldier 4 team 1
-    heroes[3] = new Hero(hero_soldier,x,y,50,7,UM);
+    heroes[3] = new Hero(hero_soldier,x,y,50,10,7,UM);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
     y+=2;
     //soldier 5 team 1
-    heroes[4] = new Hero(hero_soldier,x,y,50,7,UM);
+    heroes[4] = new Hero(hero_soldier,x,y,50,10,7,UM);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
     y+=2;
     //==============//
@@ -252,23 +256,23 @@ void Game::init_heroes(){
     x=38;
     y=2;
     //soldier 1 team 2
-    heroes[5] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    heroes[5] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=2;
     //soldier 2 team 2
-    heroes[6] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    heroes[6] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
     y+=2;
     //soldier 3 team 2
-    heroes[7] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    heroes[7] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
     y+=2;
     //soldier 4 team 2
-    heroes[8] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    heroes[8] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     y+=2;
     //soldier 5 team 2
-    heroes[9] = new Hero(hero_soldier,x,y,50,7,DOIS);
+    heroes[9] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
     y+=2;
 }
