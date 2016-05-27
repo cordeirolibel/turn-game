@@ -175,6 +175,7 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
     if(mapa->tiles[point.y-1][point.x-1]->hero != NULL){
         //in the last turn no selected a hero
         if(!*heroFlag){
+            //set which hero draw information in menu
             menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
             //the weight in start position is 0
             mapa->tiles[point.y-1][point.x-1]->weight = 0;
@@ -185,12 +186,14 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
         }
         //in the last turn selected a hero and new selected hero in the same team
         else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
-            //draw last rectangle and make anything
-            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(WHITE);
-            //out of range
-            if(mapa->tiles[point.y-1][point.x-1]->weight==WEIGHT_MAX)
-                mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
-            return;
+            //clear the range space
+            clear_space_walk(mapa,*lastTileSelected);
+            //set which hero draw information in menu
+            menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
+            //the weight in start position is 0
+            mapa->tiles[point.y-1][point.x-1]->weight = 0;
+            //find the space of walk for the hero
+            space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
         }
         //in the last turn selected a hero and new selected hero in the different team, battle
         else{
