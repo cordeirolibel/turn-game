@@ -1,4 +1,4 @@
-#define MOVE_TIME_HERO 7//in frames
+#define MOVE_TIME_HERO 5//in frames
 
 //defined in screen.h
 class Point;
@@ -6,21 +6,27 @@ class Point;
 enum Team{
     ONE,TWO
 };
+//side to lock hero
+enum Side{
+    RIGHT,LEFT
+};
 
 class Hero{
     const int speed;
     const Team team;
-    const int init_hp;
+    const int initHp;
     const int atk;
+    const int evasion;
     static int numOfHeroes;
     int hp;
+    Side side;
     int moveTime;
     Point *point;
     Image* image;
-
 public:
-    Hero(Image* _image, int x, int y, int _init_hp,int _atk, int _speed, Team _team):speed(_speed),team(_team),init_hp(_init_hp),atk(_atk){
-        hp = init_hp;
+    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team):speed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion){
+        hp = initHp;
+        side = initSide;
         image = _image;
         point = new Point(x,y);
         moveTime = 0;
@@ -35,10 +41,23 @@ public:
     //draw hero in your position
     void draw_hero(){
         Pixel_Point pixel = find_rec(point);
-        al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,0);
+        //draw here he look
+        if(side==RIGHT)
+            al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,0);
+        else
+            al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,1);
+    }
+    Side get_side(){
+        return side;
+    }
+    void set_side(Side _side){
+        side = _side;
     }
     int get_atk(){
         return atk;
+    }
+    int get_evasion(){
+        return evasion;
     }
     Team get_team(){
         return team;
@@ -50,7 +69,7 @@ public:
         return speed;
     }
     int get_max_hp(){
-        return init_hp;
+        return initHp;
     }
     //addition or subtraction of hp
     void add_hp(int value){
@@ -58,8 +77,8 @@ public:
         //the limits of hp
         if(hp<0)
             hp=0;
-        if(hp>init_hp)
-            hp=init_hp;
+        if(hp>initHp)
+            hp=initHp;
     }
     //start the count for the next move
     void set_move(){

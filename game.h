@@ -3,9 +3,14 @@
 #define FUNDO "map.png"
 #define CURSOR "cursor.png"
 #define MENU "menu.png"
-#define HERO "mage_blue.png"
+#define ARCHER_BLUE "archer_blue.png"
+#define ARCHER_RED "archer_red.png"
+#define MAGE_RED "mage_red.png"
+#define MAGE_BLUE "mage_blue.png"
+#define SOLDIER_BLUE "soldier_blue.png"
+#define SOLDIER_RED "soldier_red.png"
 #define FONT1 "pirulen.ttf"
-#define SIZE_FONT1 14
+#define SIZE_FONT1 18
 
 #define MAX_TEXT 50
 #define MAX_HEROES 50
@@ -20,7 +25,12 @@ int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
 
 class Game:public Screen{
     Font *font;
-    Image *hero_soldier;
+    Image *hero_soldier_red;
+    Image *hero_soldier_blue;
+    Image *hero_mage_red;
+    Image *hero_mage_blue;
+    Image *hero_archer_red;
+    Image *hero_archer_blue;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
@@ -35,7 +45,12 @@ public:
         delete menu;
         delete font;
         delete mouse;
-        delete hero_soldier;
+        delete hero_soldier_red;
+        delete hero_soldier_blue;
+        delete hero_mage_red;
+        delete hero_mage_blue;
+        delete hero_archer_red;
+        delete hero_archer_blue;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
         for(int i=0;i<n_heroes;i++)
@@ -80,7 +95,12 @@ int Game::initialize(){
     //open the files
     font = new Font(FONT1,SIZE_FONT1);
     mouse = new Mouse(CURSOR);
-    hero_soldier = new Image(HERO);
+    hero_soldier_blue = new Image(SOLDIER_BLUE);
+    hero_soldier_red = new Image(SOLDIER_RED);
+    hero_mage_blue = new Image(MAGE_BLUE);
+    hero_mage_red = new Image(MAGE_RED);
+    hero_archer_blue = new Image(ARCHER_BLUE);
+    hero_archer_red = new Image(ARCHER_RED);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
     menu = new Menu(MENU);
@@ -121,12 +141,16 @@ void Game::draw_menu()
         al_draw_rectangle(90,30,61 + 200,61,WHITE,1);
         //print the text of hp
         char hp[MAX_TEXT];
-        sprintf(hp,"%d\\%d",hero->get_hp(),hero->get_max_hp());
+        sprintf(hp,"HP : %d\\%d",hero->get_hp(),hero->get_max_hp());
         al_draw_text(font->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, hp);
         //print the atk
         char atk[MAX_TEXT];
-        sprintf(atk,"%d",hero->get_atk());
+        sprintf(atk,"ATK : %d",hero->get_atk());
         al_draw_text(font->get_font(), WHITE, 510, 45,ALLEGRO_ALIGN_LEFT, atk);
+        //print the evasion
+        char evasion[MAX_TEXT];
+        sprintf(evasion,"EVASION : %d",hero->get_evasion());
+        al_draw_text(font->get_font(), WHITE, 650, 45,ALLEGRO_ALIGN_LEFT, evasion);
     }
 }
 
@@ -298,53 +322,95 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     actualTile->moveHero->moves(find_rec(nextTile->pixel));
     nextTile->moveHero = actualTile->moveHero;
     actualTile->moveHero = NULL;
+    //change the side of hero
+    if(actualTile->pixel->x < nextTile->pixel->x)
+        nextTile->moveHero->set_side(RIGHT);
+    else if(nextTile->pixel->x < actualTile->pixel->x)
+        nextTile->moveHero->set_side(LEFT);
 }
 
 //initialize the all heroes
 void Game::init_heroes(){
-    int x=2,y=2;
-    //soldier 1 team 1
-    heroes[0] = new Hero(hero_soldier,x,y,50,10,7,ONE);
+
+    //TEAM 1
+
+    //soldiers team 1
+    int x=5,y=2;
+    heroes[0] = new Hero(hero_soldier_red,x,y,50,10,25,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
-    y+=2;
-    //soldier 2 team 1
-    heroes[1] = new Hero(hero_soldier,x,y,50,10,7,ONE);
+    y+=4;
+    heroes[1] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
-    y+=2;
-    //soldier 3 team 1
-    heroes[2] = new Hero(hero_soldier,x,y,50,10,7,ONE);
+    y+=4;
+    heroes[2] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
-    y+=2;
-    //soldier 4 team 1
-    heroes[3] = new Hero(hero_soldier,x,y,50,10,7,ONE);
+    y+=4;
+    heroes[3] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
-    y+=2;
-    //soldier 5 team 1
-    heroes[4] = new Hero(hero_soldier,x,y,50,10,7,ONE);
+    y+=4;
+    heroes[4] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
-    y+=2;
-    //==============//
-    //TEAM2
-    x=38;
-    y=2;
-    //soldier 1 team 2
-    heroes[5] = new Hero(hero_soldier,x,y,50,10,7,TWO);
+    y+=4;
+
+    //mages team 1
+    x=2,y=2;
+    heroes[5] = new Hero(hero_mage_red,x,y,50,10,25,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
-    y+=2;
-    //soldier 2 team 2
-    heroes[6] = new Hero(hero_soldier,x,y,50,10,7,TWO);
+    y+=16;
+    heroes[6] = new Hero(hero_mage_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
-    y+=2;
-    //soldier 3 team 2
-    heroes[7] = new Hero(hero_soldier,x,y,50,10,7,TWO);
+
+    //archers team 1
+    x=2,y=6;
+    heroes[7] = new Hero(hero_archer_red,x,y,50,10,25,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
-    y+=2;
-    //soldier 4 team 2
-    heroes[8] = new Hero(hero_soldier,x,y,50,10,7,TWO);
+    y+=4;
+    heroes[8] = new Hero(hero_archer_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
-    y+=2;
-    //soldier 5 team 2
-    heroes[9] = new Hero(hero_soldier,x,y,50,10,7,TWO);
+    y+=4;
+    heroes[9] = new Hero(hero_archer_red,x,y,50,10,30,7,RIGHT,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
-    y+=2;
+
+
+    //============================================================================================================//
+
+    //TEAM 2
+
+    //soldiers team 2
+    x=35,y=2;
+    heroes[10] = new Hero(hero_soldier_blue,x,y,50,10,25,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[10];
+    y+=4;
+    heroes[11] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[11];
+    y+=4;
+    heroes[12] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[12];
+    y+=4;
+    heroes[13] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[13];
+    y+=4;
+    heroes[14] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[14];
+    y+=4;
+
+    //mages team 2
+    x=38,y=2;
+    heroes[15] = new Hero(hero_mage_blue,x,y,50,10,25,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[15];
+    y+=16;
+    heroes[16] = new Hero(hero_mage_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[16];
+
+    //archers team 2
+    x=38,y=6;
+    heroes[17] = new Hero(hero_archer_blue,x,y,50,10,25,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[17];
+    y+=4;
+    heroes[18] = new Hero(hero_archer_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[18];
+    y+=4;
+    heroes[19] = new Hero(hero_archer_blue,x,y,50,10,30,7,LEFT,TWO);
+    mapa->tiles[y-1][x-1]->hero = heroes[19];
+
 }
