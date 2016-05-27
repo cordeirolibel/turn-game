@@ -189,15 +189,24 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     //recursion for find the start point
     if(actualTile->weight!=0)
         move_hero(actualTile->lastTile,actualTile);
+    //initial tile in the route
+    else{
+        //change to hero to moveHero, to no conflict in the route
+        actualTile->moveHero = actualTile->hero;
+        actualTile->hero = NULL;
+    }
     //if is the end
-    if(nextTile==NULL)
+    if(nextTile==NULL){
+        //change to moveHero to hero, to no conflict in the route
+        actualTile->hero = actualTile->moveHero;
+        actualTile->moveHero = NULL;
         return;
+    }
     //set the time of move and wait
-    actualTile->hero->set_move();
-
+    actualTile->moveHero->set_move();
     ALLEGRO_EVENT event;
     //wait the time of move
-    while(!actualTile->hero->is_ready_to_move()){
+    while(!actualTile->moveHero->is_ready_to_move()){
         event = wait_event();
         //Event of time, defined by FPS
         if(event.type == ALLEGRO_EVENT_TIMER){
@@ -210,9 +219,9 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
         }
     };
     //move the hero
-    actualTile->hero->moves(find_rec(nextTile->pixel));
-    nextTile->hero = actualTile->hero;
-    actualTile->hero = NULL;
+    actualTile->moveHero->moves(find_rec(nextTile->pixel));
+    nextTile->moveHero = actualTile->moveHero;
+    actualTile->moveHero = NULL;
 }
 
 //initialize the all heroes
@@ -246,7 +255,7 @@ void Game::init_heroes(){
     heroes[5] = new Hero(hero_soldier,x,y,50,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=2;
-   //soldier 2 team 2
+    //soldier 2 team 2
     heroes[6] = new Hero(hero_soldier,x,y,50,7,DOIS);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
     y+=2;

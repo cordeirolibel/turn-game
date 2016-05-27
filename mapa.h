@@ -31,11 +31,13 @@ public:
     float weight;
     Tile* lastTile;
     Hero* hero;
+    Hero* moveHero;
     Pixel_Point* pixel;
     Tile(int _x, int _y){
         //set the variables
         pixel = new Pixel_Point(_x,_y);//left up position, in pixels
         hero = NULL;
+        moveHero = NULL;
         lastTile = NULL;
         mobility = 1;//============================================================VER MELHOR
         weight = WEIGHT_MAX;
