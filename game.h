@@ -54,6 +54,8 @@ public:
     void draw_rectangles();
     //updates game when click in tile point
     void tile_click(Point point,Point* lastTileSelected,bool* heroFlag);
+    //the best point of attack
+    Point attack_point(Point* attacker, Point* defender);
     //function use recursion, animate the walk of hero
     void move_hero(Tile* actualTile, Tile* nextTile);
     //if the hero is move, animate the walk
@@ -118,9 +120,9 @@ void Game::draw_menu()
         al_draw_filled_rectangle(90,30,60 + pixels_hp,60,RED);
         al_draw_rectangle(90,30,61 + 200,61,WHITE,1);
         //print the text of hp
-        char text[MAX_TEXT];
-        sprintf(text,"%d\\%d",hero->get_hp(),hero->get_max_hp());
-        al_draw_text(font->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, text);
+        char hp[MAX_TEXT];
+        sprintf(hp,"%d\\%d",hero->get_hp(),hero->get_max_hp());
+        al_draw_text(font->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, hp);
         //print the atk
         char atk[MAX_TEXT];
         sprintf(atk,"%d",hero->get_atk());
@@ -157,11 +159,33 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
             //save the last click is a hero
             *heroFlag = true;
         }
-        //in the last turn selected a hero and new selected hero
-        else{
-            //draw last rectangle
+        //in the last turn selected a hero and new selected hero in the same team
+        else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
+            //draw last rectangle and make anything
             mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(WHITE);
+            mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
             return;
+        }
+        //in the last turn selected a hero and new selected hero in the different team, battle
+        else{
+            //find the best point of attack
+            Point atkPoint;
+            atkPoint = attack_point(lastTileSelected, &point);
+            //return null, do not have speed to attack
+            if((atkPoint.x==0)&&(atkPoint.y==0)){
+                //draw last rectangle and make anything
+                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(WHITE);
+                mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
+                return;
+            }
+            //move the hero
+            move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
+            //clear the range space
+            clear_space_walk(mapa,*lastTileSelected);
+            //draw actual rectangle
+            mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
+            mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
+            point = atkPoint;
         }
     }
     //if the last click is a hero, and the new click in the range of hero
@@ -186,6 +210,52 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
     //save the last click position
     lastTileSelected->x = point.x;
     lastTileSelected->y = point.y;
+}
+
+//the best point of attack
+Point Game::attack_point(Point* attacker, Point* defender){
+    Point saida(0,0);
+    //save the weights of proximity of the defender, not in limits
+    float weightUp=WEIGHT_MAX,weightDown=WEIGHT_MAX,weightLeft=WEIGHT_MAX,weightRight=WEIGHT_MAX;
+    if(defender->y>1)
+        weightUp = mapa->tiles[defender->y-2][defender->x-1]->weight;
+    if(defender->y<ROWS_TILE)
+        weightDown = mapa->tiles[defender->y][defender->x-1]->weight;
+    if(defender->x>1)
+        weightLeft = mapa->tiles[defender->y-1][defender->x-2]->weight;
+    if(defender->x<COLUMNS_TILE)
+        weightRight = mapa->tiles[defender->y-1][defender->x-1]->weight;
+    //if the attacker do not have access the defender
+    if((weightUp==WEIGHT_MAX)&&(weightDown==WEIGHT_MAX)&&(weightLeft==WEIGHT_MAX)&&(weightRight==WEIGHT_MAX))
+        return saida;//(0,0) is NULL
+    //if weightUp is the smaller
+    if((weightUp<=weightDown)&&(weightUp<=weightLeft)&&(weightUp<=weightRight)){
+        //return the position
+        saida.x=defender->x;
+        saida.y=defender->y-1;
+        return saida;
+    }
+    //if weightDown is the smaller
+    else if((weightDown<=weightUp)&&(weightDown<=weightLeft)&&(weightDown<=weightRight)){
+        //return the position
+        saida.x=defender->x;
+        saida.y=defender->y+1;
+        return saida;
+    }
+    //if weightLeft is the smaller
+    else if((weightLeft<=weightUp)&&(weightLeft<=weightDown)&&(weightLeft<=weightRight)){
+        //return the position
+        saida.x=defender->x-1;
+        saida.y=defender->y;
+        return saida;
+    }
+    //if weightRight is the smaller
+    else{
+        //return the position
+        saida.x=defender->x+1;
+        saida.y=defender->y;
+        return saida;
+    }
 }
 
 //function use recursion, animate the walk of hero
@@ -232,23 +302,23 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
 void Game::init_heroes(){
     int x=2,y=2;
     //soldier 1 team 1
-    heroes[0] = new Hero(hero_soldier,x,y,50,10,7,UM);
+    heroes[0] = new Hero(hero_soldier,x,y,50,10,7,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
     y+=2;
     //soldier 2 team 1
-    heroes[1] = new Hero(hero_soldier,x,y,50,10,7,UM);
+    heroes[1] = new Hero(hero_soldier,x,y,50,10,7,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
     y+=2;
     //soldier 3 team 1
-    heroes[2] = new Hero(hero_soldier,x,y,50,10,7,UM);
+    heroes[2] = new Hero(hero_soldier,x,y,50,10,7,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
     y+=2;
     //soldier 4 team 1
-    heroes[3] = new Hero(hero_soldier,x,y,50,10,7,UM);
+    heroes[3] = new Hero(hero_soldier,x,y,50,10,7,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
     y+=2;
     //soldier 5 team 1
-    heroes[4] = new Hero(hero_soldier,x,y,50,10,7,UM);
+    heroes[4] = new Hero(hero_soldier,x,y,50,10,7,ONE);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
     y+=2;
     //==============//
@@ -256,23 +326,23 @@ void Game::init_heroes(){
     x=38;
     y=2;
     //soldier 1 team 2
-    heroes[5] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
+    heroes[5] = new Hero(hero_soldier,x,y,50,10,7,TWO);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=2;
     //soldier 2 team 2
-    heroes[6] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
+    heroes[6] = new Hero(hero_soldier,x,y,50,10,7,TWO);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
     y+=2;
     //soldier 3 team 2
-    heroes[7] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
+    heroes[7] = new Hero(hero_soldier,x,y,50,10,7,TWO);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
     y+=2;
     //soldier 4 team 2
-    heroes[8] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
+    heroes[8] = new Hero(hero_soldier,x,y,50,10,7,TWO);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     y+=2;
     //soldier 5 team 2
-    heroes[9] = new Hero(hero_soldier,x,y,50,10,7,DOIS);
+    heroes[9] = new Hero(hero_soldier,x,y,50,10,7,TWO);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
     y+=2;
 }

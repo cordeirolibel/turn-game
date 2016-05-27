@@ -4,7 +4,7 @@
 class Point;
 
 enum Team{
-    UM,DOIS
+    ONE,TWO
 };
 
 class Hero{
@@ -39,6 +39,9 @@ public:
     }
     int get_atk(){
         return atk;
+    }
+    Team get_team(){
+        return team;
     }
     int get_hp(){
         return hp;
