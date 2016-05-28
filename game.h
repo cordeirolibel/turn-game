@@ -1,3 +1,8 @@
+#define IMGS_ANIMATE 4
+#define MAX_TEXT 50
+#define MAX_HEROES 50
+#define SIZE_IMG_ATTACK 100
+
 //directories
 #define PONTO "ponto.wav"
 #define FUNDO "map.png"
@@ -7,6 +12,7 @@
 #define ARCHER_RED "archer_red.png"
 #define MAGE_RED "mage_red.png"
 #define MAGE_BLUE "mage_blue.png"
+const char MAGEATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"lightning1.png"},{"lightning2.png"},{"lightning3.png"},{"lightning4.png"}};
 #define MAGEATTACK1 "lightning1.png"
 #define MAGEATTACK2 "lightning2.png"
 #define MAGEATTACK3 "lightning3.png"
@@ -16,8 +22,6 @@
 #define FONT1 "pirulen.ttf"
 #define SIZE_FONT1 18
 
-#define MAX_TEXT 50
-#define MAX_HEROES 50
 
 class Menu;
 
@@ -33,7 +37,7 @@ class Game:public Screen{
     Image *heroSoldierBlue;
     Image *heroMageRed;
     Image *heroMageBlue;
-    Image *imgMageAttack[4];
+    Image *imgMageAttack[IMGS_ANIMATE];
     Image *heroArcherRed;
     Image *heroArcherBlue;
     Image *attackDraw;
@@ -58,7 +62,7 @@ public:
         delete heroSoldierBlue;
         delete heroMageRed;
         delete heroMageBlue;
-        for(int i=0;i<4;i++)
+        for(int i=0;i<IMGS_ANIMATE;i++)
             delete imgMageAttack[i];
         delete attackDrawPixel;
         delete heroArcherRed;
@@ -113,10 +117,8 @@ int Game::initialize(){
     heroSoldierRed = new Image(SOLDIER_RED);
     heroMageBlue = new Image(MAGE_BLUE);
     heroMageRed = new Image(MAGE_RED);
-    imgMageAttack[0] = new Image(MAGEATTACK1);
-    imgMageAttack[1] = new Image(MAGEATTACK2);
-    imgMageAttack[2] = new Image(MAGEATTACK3);
-    imgMageAttack[3] = new Image(MAGEATTACK4);
+    for(int i=0;i<IMGS_ANIMATE;i++)
+            imgMageAttack[i] = new Image(MAGEATTACK[i]);
     heroArcherBlue = new Image(ARCHER_BLUE);
     heroArcherRed = new Image(ARCHER_RED);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
@@ -232,10 +234,14 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
             move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
             //clear the range space
             clear_space_walk(mapa,*lastTileSelected);
+            //attack heroes
+            attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]);
             //draw actual rectangle
             mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
             mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
-            attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]);
+            //save the last click position
+            *lastTileSelected = atkPoint;
+            return;
         }
     }
     //if the last click is a hero, and the new click in the range of hero
@@ -258,8 +264,7 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
         menu->set_hero(NULL);
     }
     //save the last click position
-    lastTileSelected->x = point.x;
-    lastTileSelected->y = point.y;
+    *lastTileSelected = point;
 }
 
 //the best point of attack
@@ -311,30 +316,39 @@ Point Game::attack_point(Point* attacker, Point* defender){
 //attack of heroes
 void Game::attack(Tile* attacker, Tile* defender){
     ALLEGRO_EVENT event;
-    if(attacker->hero->get_class()==MAGE){
-        int contTime = 0, i = 0;
-        //save the image position
-        attackDrawPixel->x = defender->pixel->x;
-        attackDrawPixel->y = defender->pixel->y-100;
-        while(i<4){
-            //set the image
-            attackDraw = imgMageAttack[i];
-            event = wait_event();
-            if(event.type == ALLEGRO_EVENT_TIMER){
-                contTime++;
-                if(contTime >= ATTACK_TIME){
-                    i++;
-                    contTime=0;
-                    //more time in the las image
-                    if(i==3)
-                        contTime -= ATTACK_TIME;
-                }
-                draw_update();
+    Image** imgAnimete;
+    //if attacker is a mage
+    if(attacker->hero->get_class()==MAGE)
+        imgAnimete=imgMageAttack;
+    //if attacker is a Archer
+//    else if(attacker->hero->get_class()==ARCHER)
+//        imgAnimete=imgArcherAttack;
+    //===================Animate
+    int contTime=0, i=0;
+    //save the image position
+    attackDrawPixel->x = defender->pixel->x;
+    attackDrawPixel->y = defender->pixel->y-SIZE_IMG_ATTACK;
+    while(i<IMGS_ANIMATE){
+        //set the image of animation
+        attackDraw = imgMageAttack[i];
+        //wait a event
+        event = wait_event();
+        if(event.type == ALLEGRO_EVENT_TIMER){
+            contTime++;
+            //wait the time of animate
+            if(contTime >= ATTACK_TIME){
+                //next image to animate
+                i++;
+                contTime=0;
+                //more time in the last image
+                if(i==(IMGS_ANIMATE-1))
+                    contTime -= ATTACK_TIME;
             }
-            //mouse move
-            else if (event.type == ALLEGRO_EVENT_MOUSE_AXES){
-                move_mouse(event.mouse.x,event.mouse.y);
-            }
+            draw_update();
+        }
+        //mouse move
+        else if (event.type == ALLEGRO_EVENT_MOUSE_AXES){
+            move_mouse(event.mouse.x,event.mouse.y);
         }
         attackDraw = NULL;
     }
