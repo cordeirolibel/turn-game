@@ -1,4 +1,5 @@
 #define MOVE_TIME_HERO 5//in frames
+#define ATTACK_TIME 7//in frames
 
 //defined in screen.h
 class Point;
@@ -11,23 +12,30 @@ enum Side{
     RIGHT,LEFT
 };
 
+enum Class{
+    MAGE, SOLDIER, ARCHER
+};
+
 class Hero{
     const int speed;
     const Team team;
     const int initHp;
     const int atk;
     const int evasion;
+    const Class class_;
     static int numOfHeroes;
     int hp;
     Side side;
     int moveTime;
     Point *point;
     Image* image;
+    Image** imgAttack;
 public:
-    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team):speed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion){
+    Hero(Image* _image,Image* _imgAttack[4], int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__):speed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__){
         hp = initHp;
         side = initSide;
         image = _image;
+        imgAttack = _imgAttack;
         point = new Point(x,y);
         moveTime = 0;
         //some the new hero class
@@ -49,6 +57,9 @@ public:
     }
     Side get_side(){
         return side;
+    }
+    Class get_class(){
+        return class_;
     }
     void set_side(Side _side){
         side = _side;

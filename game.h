@@ -7,6 +7,10 @@
 #define ARCHER_RED "archer_red.png"
 #define MAGE_RED "mage_red.png"
 #define MAGE_BLUE "mage_blue.png"
+#define MAGEATTACK1 "lightning1.png"
+#define MAGEATTACK2 "lightning2.png"
+#define MAGEATTACK3 "lightning3.png"
+#define MAGEATTACK4 "lightning4.png"
 #define SOLDIER_BLUE "soldier_blue.png"
 #define SOLDIER_RED "soldier_red.png"
 #define FONT1 "pirulen.ttf"
@@ -25,12 +29,15 @@ int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
 
 class Game:public Screen{
     Font *font;
-    Image *hero_soldier_red;
-    Image *hero_soldier_blue;
-    Image *hero_mage_red;
-    Image *hero_mage_blue;
-    Image *hero_archer_red;
-    Image *hero_archer_blue;
+    Image *heroSoldierRed;
+    Image *heroSoldierBlue;
+    Image *heroMageRed;
+    Image *heroMageBlue;
+    Image *imgMageAttack[4];
+    Image *heroArcherRed;
+    Image *heroArcherBlue;
+    Image *attackDraw;
+    Pixel_Point* attackDrawPixel;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
@@ -38,6 +45,8 @@ class Game:public Screen{
 public:
 
     Game(){
+        attackDraw = NULL;
+        attackDrawPixel = new Pixel_Point(0,0);
     }
     ~Game(){
          //deallocate memory
@@ -45,12 +54,15 @@ public:
         delete menu;
         delete font;
         delete mouse;
-        delete hero_soldier_red;
-        delete hero_soldier_blue;
-        delete hero_mage_red;
-        delete hero_mage_blue;
-        delete hero_archer_red;
-        delete hero_archer_blue;
+        delete heroSoldierRed;
+        delete heroSoldierBlue;
+        delete heroMageRed;
+        delete heroMageBlue;
+        for(int i=0;i<4;i++)
+            delete imgMageAttack[i];
+        delete attackDrawPixel;
+        delete heroArcherRed;
+        delete heroArcherBlue;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
         for(int i=0;i<n_heroes;i++)
@@ -71,6 +83,8 @@ public:
     void tile_click(Point point,Point* lastTileSelected,bool* heroFlag);
     //the best point of attack
     Point attack_point(Point* attacker, Point* defender);
+    //attack of heroes
+    void attack(Tile* attacker, Tile* defender);
     //function use recursion, animate the walk of hero
     void move_hero(Tile* actualTile, Tile* nextTile);
     //if the hero is move, animate the walk
@@ -95,12 +109,16 @@ int Game::initialize(){
     //open the files
     font = new Font(FONT1,SIZE_FONT1);
     mouse = new Mouse(CURSOR);
-    hero_soldier_blue = new Image(SOLDIER_BLUE);
-    hero_soldier_red = new Image(SOLDIER_RED);
-    hero_mage_blue = new Image(MAGE_BLUE);
-    hero_mage_red = new Image(MAGE_RED);
-    hero_archer_blue = new Image(ARCHER_BLUE);
-    hero_archer_red = new Image(ARCHER_RED);
+    heroSoldierBlue = new Image(SOLDIER_BLUE);
+    heroSoldierRed = new Image(SOLDIER_RED);
+    heroMageBlue = new Image(MAGE_BLUE);
+    heroMageRed = new Image(MAGE_RED);
+    imgMageAttack[0] = new Image(MAGEATTACK1);
+    imgMageAttack[1] = new Image(MAGEATTACK2);
+    imgMageAttack[2] = new Image(MAGEATTACK3);
+    imgMageAttack[3] = new Image(MAGEATTACK4);
+    heroArcherBlue = new Image(ARCHER_BLUE);
+    heroArcherRed = new Image(ARCHER_RED);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
     menu = new Menu(MENU);
@@ -121,6 +139,9 @@ void Game::draw_update(){
         heroes[i]->draw_hero();
     //print all rectangles
     draw_rectangles();
+    //draw attack of heroes
+    if(attackDraw!=NULL)
+        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,0);
     //print cursor
     al_draw_bitmap(mouse->get_bitmap(), mouse->get_x(),mouse->get_y(),0);
     //flip the screen
@@ -214,7 +235,7 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
             //draw actual rectangle
             mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
             mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
-            point = atkPoint;
+            attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]);
         }
     }
     //if the last click is a hero, and the new click in the range of hero
@@ -287,6 +308,39 @@ Point Game::attack_point(Point* attacker, Point* defender){
     }
 }
 
+//attack of heroes
+void Game::attack(Tile* attacker, Tile* defender){
+    ALLEGRO_EVENT event;
+    if(attacker->hero->get_class()==MAGE){
+        int contTime = 0, i = 0;
+        //save the image position
+        attackDrawPixel->x = defender->pixel->x;
+        attackDrawPixel->y = defender->pixel->y-100;
+        while(i<4){
+            //set the image
+            attackDraw = imgMageAttack[i];
+            event = wait_event();
+            if(event.type == ALLEGRO_EVENT_TIMER){
+                contTime++;
+                if(contTime >= ATTACK_TIME){
+                    i++;
+                    contTime=0;
+                    //more time in the las image
+                    if(i==3)
+                        contTime -= ATTACK_TIME;
+                }
+                draw_update();
+            }
+            //mouse move
+            else if (event.type == ALLEGRO_EVENT_MOUSE_AXES){
+                move_mouse(event.mouse.x,event.mouse.y);
+            }
+        }
+        attackDraw = NULL;
+    }
+
+}
+
 //function use recursion, animate the walk of hero
 void Game::move_hero(Tile* actualTile, Tile* nextTile){
     //recursion for find the start point
@@ -339,39 +393,39 @@ void Game::init_heroes(){
 
     //soldiers team 1
     int x=5,y=2;
-    heroes[0] = new Hero(hero_soldier_red,x,y,50,10,25,7,RIGHT,ONE);
+    heroes[0] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,25,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
     y+=4;
-    heroes[1] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[1] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
     y+=4;
-    heroes[2] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[2] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
     y+=4;
-    heroes[3] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[3] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
     y+=4;
-    heroes[4] = new Hero(hero_soldier_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[4] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
     y+=4;
 
     //mages team 1
     x=2,y=2;
-    heroes[5] = new Hero(hero_mage_red,x,y,50,10,25,7,RIGHT,ONE);
+    heroes[5] = new Hero(heroMageRed,imgMageAttack,x,y,50,10,25,7,RIGHT,ONE,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=16;
-    heroes[6] = new Hero(hero_mage_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[6] = new Hero(heroMageRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
 
     //archers team 1
     x=2,y=6;
-    heroes[7] = new Hero(hero_archer_red,x,y,50,10,25,7,RIGHT,ONE);
+    heroes[7] = new Hero(heroArcherRed,imgMageAttack,x,y,50,10,25,7,RIGHT,ONE,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
     y+=4;
-    heroes[8] = new Hero(hero_archer_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[8] = new Hero(heroArcherRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     y+=4;
-    heroes[9] = new Hero(hero_archer_red,x,y,50,10,30,7,RIGHT,ONE);
+    heroes[9] = new Hero(heroArcherRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
 
 
@@ -381,39 +435,39 @@ void Game::init_heroes(){
 
     //soldiers team 2
     x=35,y=2;
-    heroes[10] = new Hero(hero_soldier_blue,x,y,50,10,25,7,LEFT,TWO);
+    heroes[10] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,25,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[10];
     y+=4;
-    heroes[11] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[11] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[11];
     y+=4;
-    heroes[12] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[12] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[12];
     y+=4;
-    heroes[13] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[13] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[13];
     y+=4;
-    heroes[14] = new Hero(hero_soldier_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[14] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[14];
     y+=4;
 
     //mages team 2
     x=38,y=2;
-    heroes[15] = new Hero(hero_mage_blue,x,y,50,10,25,7,LEFT,TWO);
+    heroes[15] = new Hero(heroMageBlue,imgMageAttack,x,y,50,10,25,7,LEFT,TWO,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[15];
     y+=16;
-    heroes[16] = new Hero(hero_mage_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[16] = new Hero(heroMageBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[16];
 
     //archers team 2
     x=38,y=6;
-    heroes[17] = new Hero(hero_archer_blue,x,y,50,10,25,7,LEFT,TWO);
+    heroes[17] = new Hero(heroArcherBlue,imgMageAttack,x,y,50,10,25,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[17];
     y+=4;
-    heroes[18] = new Hero(hero_archer_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[18] = new Hero(heroArcherBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[18];
     y+=4;
-    heroes[19] = new Hero(hero_archer_blue,x,y,50,10,30,7,LEFT,TWO);
+    heroes[19] = new Hero(heroArcherBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[19];
 
 }
