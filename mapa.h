@@ -16,7 +16,7 @@
 const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/lightning2.png"},{"bin/lightning3.png"},{"bin/lightning4.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"}};
 //const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow2.png"},{"bin/arrow3.png"},{"bin/arrow4.png"},{"bin/arrow5.png"},{"bin/arrow6.png"},{"bin/arrow6.png"},{"bin/arrow6.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow2.png"},{"bin/fire_arrow3.png"},{"bin/fire_arrow4.png"},{"bin/fire_arrow5.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"}};
-const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash1.png"},{"bin/slash2.png"},{"bin/slash3.png"},{"bin/slash4.png"},{"bin/slash5.png"},{"bin/slash6.png"},{"bin/slash7.png"},{"bin/slash8.png"},{"bin/slash8.png"},{"bin/slash8.png"}};
+const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash1.png"},{"bin/slash2.png"},{"bin/slash3.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"}};
 #define SOLDIER_BLUE "bin/soldier_blue.png"
 #define SOLDIER_RED "bin/soldier_red.png"
 
@@ -137,8 +137,8 @@ public:
         //if class is a Archer
         else if(_class==SOLDIER){
             //set position of image
-            imgPosition->x = defender->x;
-            imgPosition->y = defender->y;
+            imgPosition->x = attack->x+frame*(defender->x-attack->x)/IMGS_ANIMATE;
+            imgPosition->y = attack->y+frame*(defender->y-attack->y)/IMGS_ANIMATE;
             //return image of animation
             if(frame>=IMGS_ANIMATE)
                 return NULL;
