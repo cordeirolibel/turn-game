@@ -1,13 +1,8 @@
 #define MOVE_TIME_HERO 5//in frames
-#define ATTACK_TIME 5//in frames
+#define ATTACK_TIME 7//in frames
 
 //defined in screen.h
 class Point;
-
-//side to lock hero
-enum Side{
-    RIGHT,LEFT
-};
 
 class Hero{
     const int speed;
@@ -17,8 +12,8 @@ class Hero{
     const int evasion;
     const Class class_;
     static int numOfHeroes;
-    int hp;
     Side side;
+    int hp;
     int moveTime;
     Point *point;
     Image* image;
@@ -72,6 +67,9 @@ public:
     }
     int get_max_hp(){
         return initHp;
+    }
+    int demage(int _demage){
+
     }
     //addition or subtraction of hp
     void add_hp(int value){

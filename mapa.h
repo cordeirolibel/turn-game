@@ -12,7 +12,8 @@
 #define ARCHER_RED "bin/archer_red.png"
 #define MAGE_RED "bin/mage_red.png"
 #define MAGE_BLUE "bin/mage_blue.png"
-const char MAGEATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/lightning2.png"},{"bin/lightning3.png"},{"bin/lightning4.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning7.png"},{"bin/lightning8.png"},{"bin/lightning9.png"},{"bin/lightning10.png"}};
+const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/lightning2.png"},{"bin/lightning3.png"},{"bin/lightning4.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"}};
+const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow2.png"},{"bin/arrow3.png"},{"bin/arrow4.png"},{"bin/arrow5.png"},{"bin/arrow6.png"},{"bin/arrow6.png"},{"bin/arrow6.png"}};
 #define SOLDIER_BLUE "bin/soldier_blue.png"
 #define SOLDIER_RED "bin/soldier_red.png"
 
@@ -45,6 +46,7 @@ class Animate{
     Image *heroMageRed;
     Image *heroMageBlue;
     Image *imgMageAttack[IMGS_ANIMATE];
+    Image *imgArcherAttack[IMGS_ANIMATE];
     Image *heroArcherRed;
     Image *heroArcherBlue;
 public:
@@ -53,8 +55,10 @@ public:
         heroSoldierRed = new Image(SOLDIER_RED);
         heroMageBlue = new Image(MAGE_BLUE);
         heroMageRed = new Image(MAGE_RED);
-        for(int i=0;i<IMGS_ANIMATE;i++)
-            imgMageAttack[i] = new Image(MAGEATTACK[i]);
+        for(int i=0;i<IMGS_ANIMATE;i++){
+            imgMageAttack[i] = new Image(MAGE_ATTACK[i]);
+            imgArcherAttack[i] = new Image(ARCHER_ATTACK[i]);
+        }
         heroArcherBlue = new Image(ARCHER_BLUE);
         heroArcherRed = new Image(ARCHER_RED);
     }
@@ -63,8 +67,10 @@ public:
         delete heroSoldierBlue;
         delete heroMageRed;
         delete heroMageBlue;
-        for(int i=0;i<IMGS_ANIMATE;i++)
+        for(int i=0;i<IMGS_ANIMATE;i++){
             delete imgMageAttack[i];
+             delete imgArcherAttack[i];
+        }
         delete heroArcherRed;
         delete heroArcherBlue;
     }
@@ -97,6 +103,34 @@ public:
                 return NULL;
             else
                 return (imgMageAttack[frame]);
+        }
+        //if class is a Archer
+        else if(_class==ARCHER){
+            //set position of image
+            int fit = (defender->x-attack->x)*(frame)/(IMGS_ANIMATE-1);
+            imgPosition->x = attack->x+fit;
+            //set side of arrow
+            if(attack->x < defender->x)
+                imgArcherAttack[frame]->side = RIGHT;
+            else
+                imgArcherAttack[frame]->side = LEFT;
+            //arrow is up
+            if((frame)<(IMGS_ANIMATE/2))
+                imgPosition->y = attack->y-20*frame;
+            //arrow is down
+            else if((frame)>(IMGS_ANIMATE/2)){
+                int maxHeight = attack->y-20*(IMGS_ANIMATE/2-1);
+                imgPosition->y += (defender->y-maxHeight)/(IMGS_ANIMATE/2-1);
+            }
+            //return image of animation
+            if(frame>=IMGS_ANIMATE)
+                return NULL;
+            else
+                return (imgArcherAttack[frame]);
+        }
+        //if class is a Archer
+        else if(_class==SOLDIER){
+
         }
         return NULL;
     }

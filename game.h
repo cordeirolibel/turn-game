@@ -1,3 +1,5 @@
+#include <time.h>
+
 #define MAX_TEXT 50
 #define MAX_HEROES 50
 
@@ -93,6 +95,8 @@ int Game::initialize(){
     menu = new Menu(MENU);
     //create the heroes
     init_heroes();
+    //initialize random seed
+    srand(time(NULL));
     return 0;
 }
 //update the screen with new informations
@@ -110,7 +114,7 @@ void Game::draw_update(){
     draw_rectangles();
     //draw attack of heroes
     if(attackDraw!=NULL)
-        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,0);
+        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
     //print cursor
     al_draw_bitmap(mouse->get_bitmap(), mouse->get_x(),mouse->get_y(),0);
     //flip the screen
@@ -289,9 +293,12 @@ Point Game::attack_point(Point* attacker, Point* defender){
 //attack of heroes
 void Game::attack(Tile* attacker, Tile* defender){
     ALLEGRO_EVENT event;
-    int contTime=0, i=0;
+    int contTime=0, i=0, damage=0;
     //set the image and position start of animation
     attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
+    //damage in random
+    if(defender->hero->get_evasion()<=(rand()%100))
+        damage = attacker->hero->get_atk();
     while(i<IMGS_ANIMATE){
         //wait a event
         event = wait_event();
@@ -302,7 +309,8 @@ void Game::attack(Tile* attacker, Tile* defender){
                 //next image to animate
                 i++;
                 contTime=0;
-                attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
+                if(i<IMGS_ANIMATE)
+                    attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
             }
             draw_update();
         }
@@ -311,6 +319,7 @@ void Game::attack(Tile* attacker, Tile* defender){
             move_mouse(event.mouse.x,event.mouse.y);
         }
     }
+    //defender->hero->damage(damage);
     attackDraw = NULL;
 }
 
@@ -384,8 +393,8 @@ void Game::init_heroes(){
 
     //mages team 1
     x=2,y=2;
-    heroes[5] = new Hero(animate->get_image(MAGE,ONE),30,y,50,10,25,7,RIGHT,ONE,MAGE);//=====================ARRUMAR X - TEST
-    mapa->tiles[y-1][30-1]->hero = heroes[5];
+    heroes[5] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,25,7,RIGHT,ONE,MAGE);
+    mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=16;
     heroes[6] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,30,7,RIGHT,ONE,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[6];

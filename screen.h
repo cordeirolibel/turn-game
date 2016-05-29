@@ -35,6 +35,11 @@
 
 using namespace std;
 
+//side to lock hero
+enum Side{
+    RIGHT=0,LEFT
+};
+
 //coordinates in pixels
 class Pixel_Point{
 public:
@@ -60,7 +65,9 @@ public:
 class Image{
     ALLEGRO_BITMAP *bitmap;
 public:
+    Side side;
     Image(const char*directory){
+        side = RIGHT;
         //load bitmap directory
         while(true){
             bitmap = al_load_bitmap(directory);
