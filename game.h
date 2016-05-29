@@ -8,20 +8,22 @@
 #define FUNDO "bin/map.png"
 #define CURSOR "bin/cursor.png"
 #define MENU "bin/menu.png"
-#define FONT1 "bin/pirulen.ttf"
-#define SIZE_FONT1 18
-
+#define FONT_BIG "bin/pirulen.ttf"
+#define SIZE_FONT_BIG 18
+#define FONT_MEDIUM "bin/pirulen.ttf"
+#define SIZE_FONT_MEDIUM 16
 
 class Menu;
 
 //converting the value in range fromLow-fromHigh to range toLow-toHigh proportionally
-int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
+int mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
 {
   return (int)((value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow);
 }
 
 class Game:public Screen{
-    Font *font;
+    Font *font_big;
+    Font *font_medium;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
@@ -31,13 +33,13 @@ class Game:public Screen{
     Pixel_Point* attackDrawPixel;
 public:
     Game(){
-
     }
     ~Game(){
          //deallocate memory
         delete mapa;
         delete menu;
-        delete font;
+        delete font_big;
+        delete font_medium;
         delete mouse;
         delete animate;
         //deallocate heroes
@@ -52,6 +54,8 @@ public:
     void init_heroes();
     //update the screen with new informations
     void draw_update();
+    //draw all heroes and informations
+    void draw_heroes();
     //draw the menu informations
     void draw_menu();
     //draw the grid of map
@@ -69,6 +73,8 @@ public:
         for(int i=0;i<Hero::get_num_of_heroes(); i++)
             heroes[i]->cont_move();
     }
+    //delete hero of heroes
+    void delete_hero();
     //move the mouse position
     void move_mouse(int x, int y){
         mouse->moves(x,y);
@@ -88,7 +94,8 @@ int Game::initialize(){
     attackDrawPixel = new Pixel_Point(0,0);
     animate = new Animate;
     //open the files
-    font = new Font(FONT1,SIZE_FONT1);
+    font_big = new Font(FONT_BIG,SIZE_FONT_BIG);
+    font_medium = new Font(FONT_MEDIUM,SIZE_FONT_MEDIUM);
     mouse = new Mouse(CURSOR);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
@@ -107,18 +114,37 @@ void Game::draw_update(){
     al_draw_bitmap(mapa->get_bitmap(),0,BAR_OPTIONS,0);
     //print menu bar
     draw_menu();
-    //draw all heroes
-    for(int i=0;i<Hero::get_num_of_heroes(); i++)
-        heroes[i]->draw_hero();
     //print all rectangles
     draw_rectangles();
-    //draw attack of heroes
-    if(attackDraw!=NULL)
-        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
+    //draw all heroes and informations
+    draw_heroes();
     //print cursor
     al_draw_bitmap(mouse->get_bitmap(), mouse->get_x(),mouse->get_y(),0);
     //flip the screen
     update_screen();
+}
+//draw all heroes and informations
+void Game::draw_heroes(){
+    int damage;
+    //draw all heroes
+    for(int i=0;i<Hero::get_num_of_heroes(); i++)
+        heroes[i]->draw_hero();
+    //draw attack of heroes
+    if(attackDraw!=NULL)
+        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
+    //draw the damage of all heroes
+    for(int i=0;i<Hero::get_num_of_heroes(); i++){
+        //if hero has received a damage
+        damage = heroes[i]->get_damage();
+        if(damage>0){
+            //draw damage in hero
+            Pixel_Point pixel = find_rec(heroes[i]->get_point());
+            char text[MAX_TEXT];
+            sprintf(text,"%d",damage);
+            al_draw_text(font_medium->get_font(), RED, pixel.x+SIZE_TILE, pixel.y,ALLEGRO_ALIGN_RIGHT, text);
+        }
+    }
+
 }
 //draw all configuration of menu
 void Game::draw_menu()
@@ -136,15 +162,15 @@ void Game::draw_menu()
         //print the text of hp
         char hp[MAX_TEXT];
         sprintf(hp,"HP : %d\\%d",hero->get_hp(),hero->get_max_hp());
-        al_draw_text(font->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, hp);
+        al_draw_text(font_big->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, hp);
         //print the atk
         char atk[MAX_TEXT];
         sprintf(atk,"ATK : %d",hero->get_atk());
-        al_draw_text(font->get_font(), WHITE, 510, 45,ALLEGRO_ALIGN_LEFT, atk);
+        al_draw_text(font_big->get_font(), WHITE, 510, 45,ALLEGRO_ALIGN_LEFT, atk);
         //print the evasion
         char evasion[MAX_TEXT];
-        sprintf(evasion,"EVASION : %d",hero->get_evasion());
-        al_draw_text(font->get_font(), WHITE, 650, 45,ALLEGRO_ALIGN_LEFT, evasion);
+        sprintf(evasion,"EVASION : %d%%",hero->get_evasion());
+        al_draw_text(font_big->get_font(), WHITE, 650, 45,ALLEGRO_ALIGN_LEFT, evasion);
     }
 }
 
@@ -311,6 +337,10 @@ void Game::attack(Tile* attacker, Tile* defender){
                 contTime=0;
                 if(i<IMGS_ANIMATE)
                     attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
+                //draw the damage
+                if(damage&&((IMGS_ANIMATE-i)<=DAMAGE_FRAMES_DRAW))
+                    //draw damage
+                    defender->hero->set_damage(damage);
             }
             draw_update();
         }
@@ -319,7 +349,14 @@ void Game::attack(Tile* attacker, Tile* defender){
             move_mouse(event.mouse.x,event.mouse.y);
         }
     }
-    //defender->hero->damage(damage);
+    //no draw damage
+    defender->hero->set_damage(-1);
+    //apply damage and check if defender is dead
+    if(defender->hero->damage(damage)){
+        //delete the defender
+        delete_hero();
+        defender->hero = NULL;
+    }
     attackDraw = NULL;
 }
 
@@ -367,7 +404,19 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     else if(nextTile->pixel->x < actualTile->pixel->x)
         nextTile->moveHero->set_side(LEFT);
 }
-
+//delete hero dead of heroes
+void Game::delete_hero(){
+    int i=0;
+    //find which hero is dead
+    for(i=0;i<Hero::get_num_of_heroes();i++)
+        //hero is dead
+        if(heroes[i]->get_hp()<=0)
+            break;
+    delete heroes[i];
+    //reallocating vector
+    for(;i<Hero::get_num_of_heroes();i++)
+        heroes[i]=heroes[i+1];
+}
 //initialize the all heroes
 void Game::init_heroes(){
 

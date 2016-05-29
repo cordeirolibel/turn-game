@@ -1,8 +1,12 @@
 #define MOVE_TIME_HERO 5//in frames
-#define ATTACK_TIME 7//in frames
+#define ATTACK_TIME 5//in frames
+
+#define HP_MAX 50
 
 //defined in screen.h
 class Point;
+//defined in game.h
+int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh);
 
 class Hero{
     const int speed;
@@ -17,6 +21,7 @@ class Hero{
     int moveTime;
     Point *point;
     Image* image;
+    int damageDraw;//-1 if not print
 public:
     Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__):speed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__){
         hp = initHp;
@@ -24,6 +29,7 @@ public:
         image = _image;
         point = new Point(x,y);
         moveTime = 0;
+        damageDraw = -1;
         //some the new hero class
         numOfHeroes++;
     }
@@ -40,6 +46,15 @@ public:
             al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,0);
         else
             al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,1);
+        //draw hp live
+        int fit = mapping(hp,0,HP_MAX,0,12);
+        if(side==RIGHT)
+            al_draw_rectangle(pixel.x+3,pixel.y+2,pixel.x+4,pixel.y+fit+2,RED,1);
+        else
+            al_draw_rectangle(pixel.x-3+SIZE_TILE,pixel.y+2,pixel.x-4+SIZE_TILE,pixel.y+fit+2,RED,1);
+    }
+    int get_damage(){
+        return damageDraw;
     }
     Side get_side(){
         return side;
@@ -50,8 +65,14 @@ public:
     void set_side(Side _side){
         side = _side;
     }
+    void set_damage(int _damage){
+        damageDraw = _damage;
+    }
     int get_atk(){
         return atk;
+    }
+    Point* get_point(){
+        return point;
     }
     int get_evasion(){
         return evasion;
@@ -68,8 +89,14 @@ public:
     int get_max_hp(){
         return initHp;
     }
-    int demage(int _demage){
-
+    int damage(int _damage){
+        hp-=_damage;
+        //dead
+        if(hp<=0){
+            hp=0;
+            return 1;
+        }
+        return 0;
     }
     //addition or subtraction of hp
     void add_hp(int value){
