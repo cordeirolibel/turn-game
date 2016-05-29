@@ -37,7 +37,7 @@ using namespace std;
 
 //side to lock hero
 enum Side{
-    RIGHT=0,LEFT, UP, DOWN
+    RIGHT=0,LEFT, UP
 };
 
 //coordinates in pixels

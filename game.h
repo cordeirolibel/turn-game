@@ -282,38 +282,41 @@ Point Game::attack_point(Point* attacker, Point* defender){
     if(defender->x>1)
         weightLeft = mapa->tiles[defender->y-1][defender->x-2]->weight;
     if(defender->x<COLUMNS_TILE)
-        weightRight = mapa->tiles[defender->y-1][defender->x-1]->weight;
+        weightRight = mapa->tiles[defender->y-1][defender->x]->weight;
     //if the attacker do not have access the defender
     if((weightUp==WEIGHT_MAX)&&(weightDown==WEIGHT_MAX)&&(weightLeft==WEIGHT_MAX)&&(weightRight==WEIGHT_MAX))
         return saida;//(0,0) is NULL
-    //if weightUp is the smaller
-    if((weightUp<=weightDown)&&(weightUp<=weightLeft)&&(weightUp<=weightRight)){
+    //if weightUp is the smaller and do not have hero in this tile
+    if((weightUp<=weightDown)&&(weightUp<=weightLeft)&&(weightUp<=weightRight)&&(mapa->tiles[defender->y-2][defender->x-1]->hero==NULL)){
         //return the position
         saida.x=defender->x;
         saida.y=defender->y-1;
         return saida;
     }
     //if weightDown is the smaller
-    else if((weightDown<=weightUp)&&(weightDown<=weightLeft)&&(weightDown<=weightRight)){
+    else if((weightDown<=weightUp)&&(weightDown<=weightLeft)&&(weightDown<=weightRight)&&(mapa->tiles[defender->y][defender->x-1]->hero==NULL)){
         //return the position
         saida.x=defender->x;
         saida.y=defender->y+1;
         return saida;
     }
     //if weightLeft is the smaller
-    else if((weightLeft<=weightUp)&&(weightLeft<=weightDown)&&(weightLeft<=weightRight)){
+    else if((weightLeft<=weightUp)&&(weightLeft<=weightDown)&&(weightLeft<=weightRight)&&(mapa->tiles[defender->y-1][defender->x-2]->hero==NULL)){
         //return the position
         saida.x=defender->x-1;
         saida.y=defender->y;
         return saida;
     }
     //if weightRight is the smaller
-    else{
+    else if((weightRight<=weightUp)&&(weightRight<=weightDown)&&(weightRight<=weightLeft)&&(mapa->tiles[defender->y-1][defender->x]->hero==NULL)){
         //return the position
         saida.x=defender->x+1;
         saida.y=defender->y;
         return saida;
     }
+    //do not have tile to attack
+    else
+        return saida;
 }
 
 //attack of heroes

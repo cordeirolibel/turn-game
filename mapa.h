@@ -17,6 +17,7 @@ const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/li
 //const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow2.png"},{"bin/arrow3.png"},{"bin/arrow4.png"},{"bin/arrow5.png"},{"bin/arrow6.png"},{"bin/arrow6.png"},{"bin/arrow6.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow2.png"},{"bin/fire_arrow3.png"},{"bin/fire_arrow4.png"},{"bin/fire_arrow5.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"}};
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash1.png"},{"bin/slash2.png"},{"bin/slash3.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"}};
+const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash21.png"},{"bin/slash22.png"},{"bin/slash23.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"}};
 #define SOLDIER_BLUE "bin/soldier_blue.png"
 #define SOLDIER_RED "bin/soldier_red.png"
 
@@ -51,6 +52,7 @@ class Animate{
     Image *imgMageAttack[IMGS_ANIMATE];
     Image *imgArcherAttack[IMGS_ANIMATE];
     Image *imgSoldierAttack[IMGS_ANIMATE];
+    Image *imgSoldierAttackUp[IMGS_ANIMATE];
     Image *heroArcherRed;
     Image *heroArcherBlue;
 public:
@@ -63,6 +65,7 @@ public:
             imgMageAttack[i] = new Image(MAGE_ATTACK[i]);
             imgArcherAttack[i] = new Image(ARCHER_ATTACK[i]);
             imgSoldierAttack[i] = new Image(SOLDIER_ATTACK[i]);
+            imgSoldierAttackUp[i] = new Image(SOLDIER_ATTACK_UP[i]);
         }
         heroArcherBlue = new Image(ARCHER_BLUE);
         heroArcherRed = new Image(ARCHER_RED);
@@ -76,6 +79,7 @@ public:
             delete imgMageAttack[i];
             delete imgArcherAttack[i];
             delete imgSoldierAttack[i];
+            delete imgSoldierAttackUp[i];
         }
         delete heroArcherRed;
         delete heroArcherBlue;
@@ -99,16 +103,15 @@ public:
     }
     //return image and or position of animation of the class
     Image* animation(Class _class, Pixel_Point* attack,Pixel_Point* defender,int frame, Pixel_Point* imgPosition){
+        if(frame>=IMGS_ANIMATE)
+            return NULL;
         //if class is a mage
         if(_class==MAGE){
             //set position of image
             imgPosition->x = defender->x;
             imgPosition->y = defender->y-100;
             //return image of animation
-            if(frame>=IMGS_ANIMATE)
-                return NULL;
-            else
-                return (imgMageAttack[frame]);
+            return (imgMageAttack[frame]);
         }
         //if class is a Archer
         else if(_class==ARCHER){
@@ -129,25 +132,38 @@ public:
                 imgPosition->y += (defender->y-maxHeight)/(IMGS_ANIMATE/2-1);
             }
             //return image of animation
-            if(frame>=IMGS_ANIMATE)
-                return NULL;
-            else
-                return (imgArcherAttack[frame]);
+            return (imgArcherAttack[frame]);
         }
-        //if class is a Archer
+        //if class is a Soldier
         else if(_class==SOLDIER){
-            //set position of image
-            imgPosition->x = attack->x+frame*(defender->x-attack->x)/IMGS_ANIMATE;
-            imgPosition->y = attack->y+frame*(defender->y-attack->y)/IMGS_ANIMATE;
             //return image of animation
             if(frame>=IMGS_ANIMATE)
                 return NULL;
-            else
-                return (imgSoldierAttack[frame]);
+            //set position of image
+            imgPosition->x = attack->x+frame*(defender->x-attack->x)/IMGS_ANIMATE;
+            imgPosition->y = attack->y+frame*(defender->y-attack->y)/IMGS_ANIMATE;
+            //set side of slash
+            if(attack->x < defender->x){
+                imgSoldierAttack[frame]->side = RIGHT;
+                return imgSoldierAttack[frame];
+            }
+            else if(attack->x > defender->x){
+                imgSoldierAttack[frame]->side = LEFT;
+                return imgSoldierAttack[frame];
+            }
+            else if(attack->y > defender->y){
+                imgSoldierAttackUp[frame]->side = UP;
+                return imgSoldierAttackUp[frame];
+            }
+            else{
+                imgSoldierAttackUp[frame]->side = RIGHT;
+                return imgSoldierAttackUp[frame];
+            }
         }
         return NULL;
     }
 };
+
 class Tile{
     int type;
     ALLEGRO_COLOR colorRec;
