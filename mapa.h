@@ -16,6 +16,7 @@
 const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/lightning2.png"},{"bin/lightning3.png"},{"bin/lightning4.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"}};
 //const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow2.png"},{"bin/arrow3.png"},{"bin/arrow4.png"},{"bin/arrow5.png"},{"bin/arrow6.png"},{"bin/arrow6.png"},{"bin/arrow6.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow2.png"},{"bin/fire_arrow3.png"},{"bin/fire_arrow4.png"},{"bin/fire_arrow5.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"}};
+const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash1.png"},{"bin/slash2.png"},{"bin/slash3.png"},{"bin/slash4.png"},{"bin/slash5.png"},{"bin/slash6.png"},{"bin/slash7.png"},{"bin/slash8.png"},{"bin/slash8.png"},{"bin/slash8.png"}};
 #define SOLDIER_BLUE "bin/soldier_blue.png"
 #define SOLDIER_RED "bin/soldier_red.png"
 
@@ -49,6 +50,7 @@ class Animate{
     Image *heroMageBlue;
     Image *imgMageAttack[IMGS_ANIMATE];
     Image *imgArcherAttack[IMGS_ANIMATE];
+    Image *imgSoldierAttack[IMGS_ANIMATE];
     Image *heroArcherRed;
     Image *heroArcherBlue;
 public:
@@ -60,6 +62,7 @@ public:
         for(int i=0;i<IMGS_ANIMATE;i++){
             imgMageAttack[i] = new Image(MAGE_ATTACK[i]);
             imgArcherAttack[i] = new Image(ARCHER_ATTACK[i]);
+            imgSoldierAttack[i] = new Image(SOLDIER_ATTACK[i]);
         }
         heroArcherBlue = new Image(ARCHER_BLUE);
         heroArcherRed = new Image(ARCHER_RED);
@@ -72,6 +75,7 @@ public:
         for(int i=0;i<IMGS_ANIMATE;i++){
             delete imgMageAttack[i];
             delete imgArcherAttack[i];
+            delete imgSoldierAttack[i];
         }
         delete heroArcherRed;
         delete heroArcherBlue;
@@ -132,7 +136,14 @@ public:
         }
         //if class is a Archer
         else if(_class==SOLDIER){
-
+            //set position of image
+            imgPosition->x = defender->x;
+            imgPosition->y = defender->y;
+            //return image of animation
+            if(frame>=IMGS_ANIMATE)
+                return NULL;
+            else
+                return (imgSoldierAttack[frame]);
         }
         return NULL;
     }
