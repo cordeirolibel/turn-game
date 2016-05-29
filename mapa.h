@@ -4,10 +4,26 @@
 #define COLUMNS_TILE 40
 
 #define WEIGHT_MAX 8000
+#define IMGS_ANIMATE 10
+#define MAX_TEXT 50
+
+//directories
+#define ARCHER_BLUE "bin/archer_blue.png"
+#define ARCHER_RED "bin/archer_red.png"
+#define MAGE_RED "bin/mage_red.png"
+#define MAGE_BLUE "bin/mage_blue.png"
+const char MAGEATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/lightning2.png"},{"bin/lightning3.png"},{"bin/lightning4.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning7.png"},{"bin/lightning8.png"},{"bin/lightning9.png"},{"bin/lightning10.png"}};
+#define SOLDIER_BLUE "bin/soldier_blue.png"
+#define SOLDIER_RED "bin/soldier_red.png"
 
 //defined in hero.h
 class Hero;
-
+enum Class{
+    MAGE, SOLDIER, ARCHER
+};
+enum Team{
+    ONE,TWO
+};
 //Find the position of rectangle, pixel to map point
 Point find_rec(Pixel_Point* pixel){
     Point point;
@@ -23,6 +39,68 @@ Pixel_Point find_rec(Point* point){
     return pixel;
 }
 
+class Animate{
+    Image *heroSoldierRed;
+    Image *heroSoldierBlue;
+    Image *heroMageRed;
+    Image *heroMageBlue;
+    Image *imgMageAttack[IMGS_ANIMATE];
+    Image *heroArcherRed;
+    Image *heroArcherBlue;
+public:
+    Animate(){
+        heroSoldierBlue = new Image(SOLDIER_BLUE);
+        heroSoldierRed = new Image(SOLDIER_RED);
+        heroMageBlue = new Image(MAGE_BLUE);
+        heroMageRed = new Image(MAGE_RED);
+        for(int i=0;i<IMGS_ANIMATE;i++)
+            imgMageAttack[i] = new Image(MAGEATTACK[i]);
+        heroArcherBlue = new Image(ARCHER_BLUE);
+        heroArcherRed = new Image(ARCHER_RED);
+    }
+    ~Animate(){
+        delete heroSoldierRed;
+        delete heroSoldierBlue;
+        delete heroMageRed;
+        delete heroMageBlue;
+        for(int i=0;i<IMGS_ANIMATE;i++)
+            delete imgMageAttack[i];
+        delete heroArcherRed;
+        delete heroArcherBlue;
+    }
+    //return the bitmap of Class and Team defined
+    Image *get_image(Class _class, Team team){
+        if(_class==MAGE&&team==ONE)
+            return heroMageBlue;
+        else if(_class==MAGE&&team==TWO)
+            return heroMageRed;
+        else if(_class==SOLDIER&&team==ONE)
+            return heroSoldierBlue;
+        else if(_class==SOLDIER&&team==TWO)
+            return heroSoldierRed;
+        else if(_class==ARCHER&&team==ONE)
+            return heroArcherBlue;
+        else if(_class==ARCHER&&team==TWO)
+            return heroArcherRed;
+        else
+            return NULL;
+    }
+    //return image and or position of animation of the class
+    Image* animation(Class _class, Pixel_Point* attack,Pixel_Point* defender,int frame, Pixel_Point* imgPosition){
+        //if class is a mage
+        if(_class==MAGE){
+            //set position of image
+            imgPosition->x = defender->x;
+            imgPosition->y = defender->y-100;
+            //return image of animation
+            if(frame>=IMGS_ANIMATE)
+                return NULL;
+            else
+                return (imgMageAttack[frame]);
+        }
+        return NULL;
+    }
+};
 class Tile{
     int type;
     ALLEGRO_COLOR colorRec;

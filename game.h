@@ -1,25 +1,12 @@
-#define IMGS_ANIMATE 4
 #define MAX_TEXT 50
 #define MAX_HEROES 50
-#define SIZE_IMG_ATTACK 100
 
 //directories
-#define PONTO "ponto.wav"
-#define FUNDO "map.png"
-#define CURSOR "cursor.png"
-#define MENU "menu.png"
-#define ARCHER_BLUE "archer_blue.png"
-#define ARCHER_RED "archer_red.png"
-#define MAGE_RED "mage_red.png"
-#define MAGE_BLUE "mage_blue.png"
-const char MAGEATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"lightning1.png"},{"lightning2.png"},{"lightning3.png"},{"lightning4.png"}};
-#define MAGEATTACK1 "lightning1.png"
-#define MAGEATTACK2 "lightning2.png"
-#define MAGEATTACK3 "lightning3.png"
-#define MAGEATTACK4 "lightning4.png"
-#define SOLDIER_BLUE "soldier_blue.png"
-#define SOLDIER_RED "soldier_red.png"
-#define FONT1 "pirulen.ttf"
+#define PONTO "bin/ponto.wav"
+#define FUNDO "bin/map.png"
+#define CURSOR "bin/cursor.png"
+#define MENU "bin/menu.png"
+#define FONT1 "bin/pirulen.ttf"
 #define SIZE_FONT1 18
 
 
@@ -33,24 +20,16 @@ int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
 
 class Game:public Screen{
     Font *font;
-    Image *heroSoldierRed;
-    Image *heroSoldierBlue;
-    Image *heroMageRed;
-    Image *heroMageBlue;
-    Image *imgMageAttack[IMGS_ANIMATE];
-    Image *heroArcherRed;
-    Image *heroArcherBlue;
-    Image *attackDraw;
-    Pixel_Point* attackDrawPixel;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
     Mouse *mouse;
+    Image *attackDraw;
+    Animate *animate;
+    Pixel_Point* attackDrawPixel;
 public:
-
     Game(){
-        attackDraw = NULL;
-        attackDrawPixel = new Pixel_Point(0,0);
+
     }
     ~Game(){
          //deallocate memory
@@ -58,15 +37,7 @@ public:
         delete menu;
         delete font;
         delete mouse;
-        delete heroSoldierRed;
-        delete heroSoldierBlue;
-        delete heroMageRed;
-        delete heroMageBlue;
-        for(int i=0;i<IMGS_ANIMATE;i++)
-            delete imgMageAttack[i];
-        delete attackDrawPixel;
-        delete heroArcherRed;
-        delete heroArcherBlue;
+        delete animate;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
         for(int i=0;i<n_heroes;i++)
@@ -110,17 +81,13 @@ int Game::initialize(){
     //initialize screen
     if(Screen::initialize())
         return 1;
+    //initialize variables
+    attackDraw = NULL;
+    attackDrawPixel = new Pixel_Point(0,0);
+    animate = new Animate;
     //open the files
     font = new Font(FONT1,SIZE_FONT1);
     mouse = new Mouse(CURSOR);
-    heroSoldierBlue = new Image(SOLDIER_BLUE);
-    heroSoldierRed = new Image(SOLDIER_RED);
-    heroMageBlue = new Image(MAGE_BLUE);
-    heroMageRed = new Image(MAGE_RED);
-    for(int i=0;i<IMGS_ANIMATE;i++)
-            imgMageAttack[i] = new Image(MAGEATTACK[i]);
-    heroArcherBlue = new Image(ARCHER_BLUE);
-    heroArcherRed = new Image(ARCHER_RED);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
     menu = new Menu(MENU);
@@ -270,6 +237,12 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
 //the best point of attack
 Point Game::attack_point(Point* attacker, Point* defender){
     Point saida(0,0);
+    //if neighbors
+    if( (((attacker->x)==(defender->x+1))&&((attacker->y)==(defender->y)))  ||
+        (((attacker->x)==(defender->x-1))&&((attacker->y)==(defender->y)))  ||
+        (((attacker->x)==(defender->x))  &&((attacker->y)==(defender->y+1)))||
+        (((attacker->x)==(defender->x))  &&((attacker->y)==(defender->y-1))))
+        return *attacker;
     //save the weights of proximity of the defender, not in limits
     float weightUp=WEIGHT_MAX,weightDown=WEIGHT_MAX,weightLeft=WEIGHT_MAX,weightRight=WEIGHT_MAX;
     if(defender->y>1)
@@ -316,21 +289,10 @@ Point Game::attack_point(Point* attacker, Point* defender){
 //attack of heroes
 void Game::attack(Tile* attacker, Tile* defender){
     ALLEGRO_EVENT event;
-    Image** imgAnimete;
-    //if attacker is a mage
-    if(attacker->hero->get_class()==MAGE)
-        imgAnimete=imgMageAttack;
-    //if attacker is a Archer
-//    else if(attacker->hero->get_class()==ARCHER)
-//        imgAnimete=imgArcherAttack;
-    //===================Animate
     int contTime=0, i=0;
-    //save the image position
-    attackDrawPixel->x = defender->pixel->x;
-    attackDrawPixel->y = defender->pixel->y-SIZE_IMG_ATTACK;
+    //set the image and position start of animation
+    attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
     while(i<IMGS_ANIMATE){
-        //set the image of animation
-        attackDraw = imgMageAttack[i];
         //wait a event
         event = wait_event();
         if(event.type == ALLEGRO_EVENT_TIMER){
@@ -340,9 +302,7 @@ void Game::attack(Tile* attacker, Tile* defender){
                 //next image to animate
                 i++;
                 contTime=0;
-                //more time in the last image
-                if(i==(IMGS_ANIMATE-1))
-                    contTime -= ATTACK_TIME;
+                attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
             }
             draw_update();
         }
@@ -350,9 +310,8 @@ void Game::attack(Tile* attacker, Tile* defender){
         else if (event.type == ALLEGRO_EVENT_MOUSE_AXES){
             move_mouse(event.mouse.x,event.mouse.y);
         }
-        attackDraw = NULL;
     }
-
+    attackDraw = NULL;
 }
 
 //function use recursion, animate the walk of hero
@@ -407,39 +366,39 @@ void Game::init_heroes(){
 
     //soldiers team 1
     int x=5,y=2;
-    heroes[0] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,25,7,RIGHT,ONE,SOLDIER);
+    heroes[0] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,25,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
     y+=4;
-    heroes[1] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[1] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
     y+=4;
-    heroes[2] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[2] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
     y+=4;
-    heroes[3] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[3] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
     y+=4;
-    heroes[4] = new Hero(heroSoldierRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[4] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
     y+=4;
 
     //mages team 1
     x=2,y=2;
-    heroes[5] = new Hero(heroMageRed,imgMageAttack,x,y,50,10,25,7,RIGHT,ONE,MAGE);
-    mapa->tiles[y-1][x-1]->hero = heroes[5];
+    heroes[5] = new Hero(animate->get_image(MAGE,ONE),30,y,50,10,25,7,RIGHT,ONE,MAGE);//=====================ARRUMAR X - TEST
+    mapa->tiles[y-1][30-1]->hero = heroes[5];
     y+=16;
-    heroes[6] = new Hero(heroMageRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,MAGE);
+    heroes[6] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,30,7,RIGHT,ONE,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
 
     //archers team 1
     x=2,y=6;
-    heroes[7] = new Hero(heroArcherRed,imgMageAttack,x,y,50,10,25,7,RIGHT,ONE,ARCHER);
+    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,25,7,RIGHT,ONE,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
     y+=4;
-    heroes[8] = new Hero(heroArcherRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,ARCHER);
+    heroes[8] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     y+=4;
-    heroes[9] = new Hero(heroArcherRed,imgMageAttack,x,y,50,10,30,7,RIGHT,ONE,ARCHER);
+    heroes[9] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
 
 
@@ -449,39 +408,39 @@ void Game::init_heroes(){
 
     //soldiers team 2
     x=35,y=2;
-    heroes[10] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,25,7,LEFT,TWO,SOLDIER);
+    heroes[10] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,25,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[10];
     y+=4;
-    heroes[11] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[11] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[11];
     y+=4;
-    heroes[12] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[12] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[12];
     y+=4;
-    heroes[13] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[13] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[13];
     y+=4;
-    heroes[14] = new Hero(heroSoldierBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[14] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[14];
     y+=4;
 
     //mages team 2
     x=38,y=2;
-    heroes[15] = new Hero(heroMageBlue,imgMageAttack,x,y,50,10,25,7,LEFT,TWO,MAGE);
+    heroes[15] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,25,7,LEFT,TWO,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[15];
     y+=16;
-    heroes[16] = new Hero(heroMageBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,MAGE);
+    heroes[16] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,30,7,LEFT,TWO,MAGE);
     mapa->tiles[y-1][x-1]->hero = heroes[16];
 
     //archers team 2
     x=38,y=6;
-    heroes[17] = new Hero(heroArcherBlue,imgMageAttack,x,y,50,10,25,7,LEFT,TWO,ARCHER);
+    heroes[17] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,25,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[17];
     y+=4;
-    heroes[18] = new Hero(heroArcherBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,ARCHER);
+    heroes[18] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[18];
     y+=4;
-    heroes[19] = new Hero(heroArcherBlue,imgMageAttack,x,y,50,10,30,7,LEFT,TWO,ARCHER);
+    heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[19];
 
 }
