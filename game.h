@@ -8,10 +8,12 @@
 #define FUNDO "bin/map.png"
 #define CURSOR "bin/cursor.png"
 #define MENU "bin/menu.png"
-#define FONT_BIG "bin/pirulen.ttf"
-#define SIZE_FONT_BIG 18
+//#define FONT_BIG "bin/pirulen.ttf"
+#define FONT_BIG "bin/Carnevalee Freakshow.ttf"
+#define SIZE_FONT_BIG 30
 #define FONT_MEDIUM "bin/pirulen.ttf"
 #define SIZE_FONT_MEDIUM 16
+
 
 class Menu;
 
@@ -59,14 +61,18 @@ public:
     void draw_update();
     //draw all heroes and informations
     void draw_heroes();
-    //draw the menu informations
-    void draw_menu();
     //draw the grid of map
     void draw_rectangles();
     //updates game when click in tile point
     void tile_click(Point point);
-    //updates if menu is clicked
-    void menu_click(Pixel_Point pixel);
+    //click in menu
+    bool menu_click(Pixel_Point pixel){
+        return menu->click(pixel);
+    }
+    //depress the click
+    void depress(){
+        menu->depress();
+    }
     //the best point of attack
     Point attack_point(Point* attacker, Point* defender);
     //attack of heroes
@@ -119,7 +125,7 @@ void Game::draw_update(){
     //print map
     al_draw_bitmap(mapa->get_bitmap(),0,BAR_OPTIONS,0);
     //print menu bar
-    draw_menu();
+    menu->draw_menu(font_big);
     //print all rectangles
     draw_rectangles();
     //draw all heroes and informations
@@ -151,33 +157,6 @@ void Game::draw_heroes(){
         }
     }
 
-}
-//draw all configuration of menu
-void Game::draw_menu()
-{
-    //draw image of menu
-    al_draw_bitmap(menu->get_bitmap(),0,0,0);
-    Hero *hero = menu->get_hero();
-    //if hero is selected
-    if(hero != NULL)
-    {
-        //print the rectangle of hp
-        int pixels_hp = mapping(hero->get_hp(),0,hero->get_max_hp(),0,200);
-        al_draw_filled_rectangle(90,30,60 + pixels_hp,60,RED);
-        al_draw_rectangle(90,30,61 + 200,61,WHITE,1);
-        //print the text of hp
-        char hp[MAX_TEXT];
-        sprintf(hp,"HP : %d\\%d",hero->get_hp(),hero->get_max_hp());
-        al_draw_text(font_big->get_font(), WHITE, 265, 45,ALLEGRO_ALIGN_LEFT, hp);
-        //print the atk
-        char atk[MAX_TEXT];
-        sprintf(atk,"ATK : %d",hero->get_atk());
-        al_draw_text(font_big->get_font(), WHITE, 510, 45,ALLEGRO_ALIGN_LEFT, atk);
-        //print the evasion
-        char evasion[MAX_TEXT];
-        sprintf(evasion,"EVASION : %d%%",hero->get_evasion());
-        al_draw_text(font_big->get_font(), WHITE, 650, 45,ALLEGRO_ALIGN_LEFT, evasion);
-    }
 }
 
 //draw the grid of map
@@ -233,23 +212,21 @@ void Game::tile_click(Point point){
                 mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
                 return;
             }
-            //if is the same point
-            if((atkPoint.x==lastTileSelected->x)&&(atkPoint.y==lastTileSelected->y)){
-                //attacker in the right
-                if(point.x<atkPoint.x){
-                    //set your sides
-                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
-                    mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
-                }
-                //attacker in the left
-                else if(atkPoint.x<point.x){
-                    //set your sides
-                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
-                    mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
-                }
-            }
             //move the hero
             move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
+            //change the side of look heroes, for the battle
+            //attacker in the right
+            if(point.x<atkPoint.x){
+                //set your sides
+                mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
+                mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
+            }
+            //attacker in the left
+            else if(atkPoint.x<point.x){
+                //set your sides
+                mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
+                mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
+            }
             //clear the range space
             clear_space_walk(mapa,*lastTileSelected);
             //attack heroes
@@ -284,10 +261,7 @@ void Game::tile_click(Point point){
     //save the last click position
     *lastTileSelected = point;
 }
-//updates if menu is clicked
-void Game::menu_click(Pixel_Point pixel){
 
-}
 //the best point of attack
 Point Game::attack_point(Point* attacker, Point* defender){
     Point saida(0,0);

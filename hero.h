@@ -53,6 +53,9 @@ public:
         else
             al_draw_rectangle(pixel.x-3+SIZE_TILE,pixel.y+2,pixel.x-4+SIZE_TILE,pixel.y+fit+2,RED,1);
     }
+    ALLEGRO_BITMAP* get_bitmap(){
+        return image->get_bitmap();
+    }
     int get_damage(){
         return damageDraw;
     }

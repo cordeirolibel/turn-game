@@ -20,15 +20,13 @@ int main(int argc, char **argv){
     while(true){
         event = game->wait_event();
         //Event of time, defined by FPS
-        if(event.type == ALLEGRO_EVENT_TIMER){
+        if(event.type == ALLEGRO_EVENT_TIMER)
             game->draw_update();
-        }
         //mouse move
-        else if (event.type == ALLEGRO_EVENT_MOUSE_AXES){
+        else if (event.type == ALLEGRO_EVENT_MOUSE_AXES)
             game->move_mouse(event.mouse.x,event.mouse.y);
-        }
         //mouse click
-        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
+        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
             //copy mouse position
             Pixel_Point pixel = game->get_mouse_pixel();
             //in map, not menu options
@@ -39,9 +37,15 @@ int main(int argc, char **argv){
             }
             //in menu, not map
             else{
-                game->menu_click(pixel);
+                //if next turn is press
+                if(game->menu_click(pixel)){
+
+                }
             }
         }
+        //mouse is depress
+        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+            game->depress();
         //if press in X (close)
         else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
