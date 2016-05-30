@@ -11,9 +11,6 @@
 using namespace std;
 
 int main(int argc, char **argv){
-    //variables
-    bool heroFlag = false;//flag indicate if the hero is selected
-    Point lastTileSelected(1,1);
     //initialize allegro and the all game
     Game *game = new Game;
     if(game->initialize())//Error
@@ -31,18 +28,18 @@ int main(int argc, char **argv){
             game->move_mouse(event.mouse.x,event.mouse.y);
         }
         //mouse click
-        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
-        {
+        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
             //copy mouse position
             Pixel_Point pixel = game->get_mouse_pixel();
             //in map, not menu options
             if(pixel.y>BAR_OPTIONS){
                 //find the tile click
                 Point point = find_rec(&pixel);
-                game->tile_click( point, &lastTileSelected,&heroFlag);
+                game->tile_click(point);
             }
             //in menu, not map
             else{
+                game->menu_click(pixel);
             }
         }
         //if press in X (close)

@@ -31,6 +31,8 @@ class Game:public Screen{
     Image *attackDraw;
     Animate *animate;
     Pixel_Point* attackDrawPixel;
+    Point* lastTileSelected;
+    bool heroFlag;
 public:
     Game(){
     }
@@ -42,6 +44,7 @@ public:
         delete font_medium;
         delete mouse;
         delete animate;
+        delete lastTileSelected;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
         for(int i=0;i<n_heroes;i++)
@@ -61,7 +64,9 @@ public:
     //draw the grid of map
     void draw_rectangles();
     //updates game when click in tile point
-    void tile_click(Point point,Point* lastTileSelected,bool* heroFlag);
+    void tile_click(Point point);
+    //updates if menu is clicked
+    void menu_click(Pixel_Point pixel);
     //the best point of attack
     Point attack_point(Point* attacker, Point* defender);
     //attack of heroes
@@ -93,6 +98,7 @@ int Game::initialize(){
     attackDraw = NULL;
     attackDrawPixel = new Pixel_Point(0,0);
     animate = new Animate;
+    lastTileSelected = new Point(1,1);
     //open the files
     font_big = new Font(FONT_BIG,SIZE_FONT_BIG);
     font_medium = new Font(FONT_MEDIUM,SIZE_FONT_MEDIUM);
@@ -183,7 +189,7 @@ void Game::draw_rectangles(){
 }
 
 //updates mapa when click in tile point
-void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
+void Game::tile_click(Point point){
     //clicked in the same position, do anything
     if((lastTileSelected->x == point.x)&&(lastTileSelected->y == point.y))
         return;
@@ -194,7 +200,7 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
     //if a hero into the tile
     if(mapa->tiles[point.y-1][point.x-1]->hero != NULL){
         //in the last turn no selected a hero
-        if(!*heroFlag){
+        if(!heroFlag){
             //set which hero draw information in menu
             menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
             //the weight in start position is 0
@@ -202,7 +208,7 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
             //find the space of walk for the hero
             space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
             //save the last click is a hero
-            *heroFlag = true;
+            heroFlag = true;
         }
         //in the last turn selected a hero and new selected hero in the same team
         else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
@@ -227,6 +233,21 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
                 mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
                 return;
             }
+            //if is the same point
+            if((atkPoint.x==lastTileSelected->x)&&(atkPoint.y==lastTileSelected->y)){
+                //attacker in the right
+                if(point.x<atkPoint.x){
+                    //set your sides
+                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
+                    mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
+                }
+                //attacker in the left
+                else if(atkPoint.x<point.x){
+                    //set your sides
+                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
+                    mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
+                }
+            }
             //move the hero
             move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
             //clear the range space
@@ -242,7 +263,7 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
         }
     }
     //if the last click is a hero, and the new click in the range of hero
-    else if((*heroFlag)&&(mapa->tiles[point.y-1][point.x-1]->weight<WEIGHT_MAX)){
+    else if((heroFlag)&&(mapa->tiles[point.y-1][point.x-1]->weight<WEIGHT_MAX)){
         //move the hero
         move_hero(mapa->tiles[point.y-1][point.x-1], NULL);
         //clear the range space
@@ -255,15 +276,18 @@ void Game::tile_click(Point point,Point* lastTileSelected,bool* heroFlag){
         space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
     }
     //if the last click is a hero, and the new click out of the range of hero
-    else if(*heroFlag){
+    else if(heroFlag){
         clear_space_walk(mapa,*lastTileSelected);
-        *heroFlag = false;
+        heroFlag = false;
         menu->set_hero(NULL);
     }
     //save the last click position
     *lastTileSelected = point;
 }
+//updates if menu is clicked
+void Game::menu_click(Pixel_Point pixel){
 
+}
 //the best point of attack
 Point Game::attack_point(Point* attacker, Point* defender){
     Point saida(0,0);
@@ -276,39 +300,39 @@ Point Game::attack_point(Point* attacker, Point* defender){
     //save the weights of proximity of the defender, not in limits
     float weightUp=WEIGHT_MAX,weightDown=WEIGHT_MAX,weightLeft=WEIGHT_MAX,weightRight=WEIGHT_MAX;
     if(defender->y>1)
-        weightUp = mapa->tiles[defender->y-2][defender->x-1]->weight;
+        weightUp = mapa->tiles[defender->y-2][defender->x-1]->weight+WEIGHT_MAX*(mapa->tiles[defender->y-2][defender->x-1]->hero!=NULL);
     if(defender->y<ROWS_TILE)
-        weightDown = mapa->tiles[defender->y][defender->x-1]->weight;
+        weightDown = mapa->tiles[defender->y][defender->x-1]->weight+WEIGHT_MAX*(mapa->tiles[defender->y][defender->x-1]->hero!=NULL);
     if(defender->x>1)
-        weightLeft = mapa->tiles[defender->y-1][defender->x-2]->weight;
+        weightLeft = mapa->tiles[defender->y-1][defender->x-2]->weight+WEIGHT_MAX*(mapa->tiles[defender->y-1][defender->x-2]->hero!=NULL);
     if(defender->x<COLUMNS_TILE)
-        weightRight = mapa->tiles[defender->y-1][defender->x]->weight;
+        weightRight = mapa->tiles[defender->y-1][defender->x]->weight+WEIGHT_MAX*(mapa->tiles[defender->y-1][defender->x]->hero!=NULL);
     //if the attacker do not have access the defender
     if((weightUp==WEIGHT_MAX)&&(weightDown==WEIGHT_MAX)&&(weightLeft==WEIGHT_MAX)&&(weightRight==WEIGHT_MAX))
         return saida;//(0,0) is NULL
     //if weightUp is the smaller and do not have hero in this tile
-    if((weightUp<=weightDown)&&(weightUp<=weightLeft)&&(weightUp<=weightRight)&&(mapa->tiles[defender->y-2][defender->x-1]->hero==NULL)){
+    if((weightUp<=weightDown)&&(weightUp<=weightLeft)&&(weightUp<=weightRight)&&(weightUp<WEIGHT_MAX)){
         //return the position
         saida.x=defender->x;
         saida.y=defender->y-1;
         return saida;
     }
     //if weightDown is the smaller
-    else if((weightDown<=weightUp)&&(weightDown<=weightLeft)&&(weightDown<=weightRight)&&(mapa->tiles[defender->y][defender->x-1]->hero==NULL)){
+    else if((weightDown<=weightUp)&&(weightDown<=weightLeft)&&(weightDown<=weightRight)&&(weightDown<WEIGHT_MAX)){
         //return the position
         saida.x=defender->x;
         saida.y=defender->y+1;
         return saida;
     }
     //if weightLeft is the smaller
-    else if((weightLeft<=weightUp)&&(weightLeft<=weightDown)&&(weightLeft<=weightRight)&&(mapa->tiles[defender->y-1][defender->x-2]->hero==NULL)){
+    else if((weightLeft<=weightUp)&&(weightLeft<=weightDown)&&(weightLeft<=weightRight)&&(weightLeft<WEIGHT_MAX)){
         //return the position
         saida.x=defender->x-1;
         saida.y=defender->y;
         return saida;
     }
     //if weightRight is the smaller
-    else if((weightRight<=weightUp)&&(weightRight<=weightDown)&&(weightRight<=weightLeft)&&(mapa->tiles[defender->y-1][defender->x]->hero==NULL)){
+    else if((weightRight<=weightUp)&&(weightRight<=weightDown)&&(weightRight<=weightLeft)&&(weightRight<WEIGHT_MAX)){
         //return the position
         saida.x=defender->x+1;
         saida.y=defender->y;
