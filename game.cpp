@@ -38,9 +38,8 @@ int main(int argc, char **argv){
             //in menu, not map
             else{
                 //if next turn is press
-                if(game->menu_click(pixel)){
-
-                }
+                if(game->menu_click(pixel))
+                    game->next_turn();
             }
         }
         //mouse is depress

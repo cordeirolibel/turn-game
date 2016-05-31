@@ -22,6 +22,7 @@ class Hero{
     Point *point;
     Image* image;
     int damageDraw;//-1 if not print
+    bool attack_flag;
 public:
     Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__):speed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__){
         hp = initHp;
@@ -30,6 +31,7 @@ public:
         point = new Point(x,y);
         moveTime = 0;
         damageDraw = -1;
+        attack_flag = false;
         //some the new hero class
         numOfHeroes++;
     }
@@ -37,6 +39,13 @@ public:
         //subtracted the hero
         numOfHeroes--;
         delete point;
+    }
+    //return true if the hero attacker in this turn
+    bool get_attack_flag(){
+        return attack_flag;
+    }
+    void set_attack_flag(bool flag){
+        attack_flag = flag;
     }
     //draw hero in your position
     void draw_hero(){
@@ -218,8 +227,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team){
         }
     }
 }
-
-
 
 //clear the last space walk, based in space_walk() function inverse
 void clear_space_walk(Map *mapa, Point point){
