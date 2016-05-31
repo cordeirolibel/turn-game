@@ -219,8 +219,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team){
     }
 }
 
-
-
 //clear the last space walk, based in space_walk() function inverse
 void clear_space_walk(Map *mapa, Point point){
     //tile in Left, if not limit
