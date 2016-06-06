@@ -5,6 +5,8 @@
 
 //defined in screen.h
 class Point;
+class Pixel_Point;
+class Menu;
 //defined in game.h
 int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh);
 
@@ -40,6 +42,8 @@ public:
         numOfHeroes--;
         delete point;
     }
+    //return the pixel point of the Hero
+    friend Pixel_Point Map::get_hero_pixel_point(Hero* hero);
     //return true if the hero attacker in this turn
     bool get_attack_flag(){
         return attack_flag;
@@ -143,7 +147,10 @@ public:
 };
 //initialize static number
 int Hero::numOfHeroes = 0;
-
+//return the pixel point of the Hero
+Pixel_Point Map::get_hero_pixel_point(Hero* hero){
+    return (find_rec(hero->point));
+}
 //Find the walk space in mapa, stating in point and finish when WEIGHT_MAX it is reached
 //Use the recursion and based on algorithm dijkstra
 void space_walk(Map *mapa,Point point, float weight_max, Team team){

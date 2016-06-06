@@ -1,19 +1,14 @@
 #include <time.h>
 
-#define MAX_TEXT 50
 #define MAX_HEROES 50
 
 //directories
-#define PONTO "bin/ponto.wav"
 #define FUNDO "bin/map.png"
 #define CURSOR "bin/cursor.png"
-#define MENU "bin/menu.png"
-//#define FONT_BIG "bin/pirulen.ttf"
 #define FONT_BIG "bin/Carnevalee Freakshow.ttf"
 #define SIZE_FONT_BIG 32
 #define FONT_MEDIUM "bin/pirulen.ttf"
 #define SIZE_FONT_MEDIUM 16
-
 
 class Menu;
 
@@ -32,6 +27,7 @@ class Game:public Screen{
     Mouse *mouse;
     Image *attackDraw;
     Animate *animate;
+    Sounds* sounds;
     Pixel_Point* attackDrawPixel;
     Point* lastTileSelected;
     Team turnTeam;
@@ -47,6 +43,7 @@ public:
         delete font_medium;
         delete mouse;
         delete animate;
+        delete sounds;
         delete lastTileSelected;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
@@ -93,9 +90,13 @@ public:
     void move_mouse(int x, int y){
         mouse->moves(x,y);
     }
+    //buffer to screen
+    void update_screen(){
+        al_flip_display();
+    }
     //return the mouse position
     Pixel_Point get_mouse_pixel(){
-        return *mouse->get_pixel();
+        return mouse->get_pixel();
     }
 };
 
@@ -109,6 +110,7 @@ int Game::initialize(){
     attackDraw = NULL;
     attackDrawPixel = new Pixel_Point(0,0);
     animate = new Animate;
+    sounds = new Sounds;
     lastTileSelected = new Point(1,1);
     //set which team is ini
     int rando = rand()%2;
@@ -122,7 +124,7 @@ int Game::initialize(){
     mouse = new Mouse(CURSOR);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
-    menu = new Menu(MENU);
+    menu = new Menu();
     //create the heroes
     init_heroes();
     return 0;
@@ -341,6 +343,8 @@ void Game::tile_click(Point point){
 }
 //update the game for next turn
 void Game::next_turn(){
+    //sound of button click
+    sounds->play("button");
     //clear any tile selected
     mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
     //in the last click selected a hero
@@ -425,8 +429,12 @@ void Game::attack(Tile* attacker, Tile* defender){
     //set the image and position start of animation
     attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
     //damage in random
-    if(defender->hero->get_evasion()<=(rand()%100))
+    if(defender->hero->get_evasion()<=(rand()%100)){
         damage = attacker->hero->get_atk();
+        sounds->play(attacker->hero->get_class(),"attack");
+    }
+    else
+        sounds->play(attacker->hero->get_class(),"attack miss");
     while(i<IMGS_ANIMATE){
         //wait a event
         event = wait_event();
@@ -483,6 +491,7 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     //set the time of move and wait
     actualTile->moveHero->set_move();
     ALLEGRO_EVENT event;
+    sounds->play("walk dirt");//========================================VER MELHOR
     //wait the time of move
     while(!actualTile->moveHero->is_ready_to_move()){
         event = wait_event();
@@ -603,5 +612,4 @@ void Game::init_heroes(){
     y+=4;
     heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[19];
-
 }

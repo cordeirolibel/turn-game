@@ -5,6 +5,7 @@
 #include "mapa.h"
 #include "hero.h"
 #include "menu.h"
+#include "files.h"
 #include "game.h"
 
 
