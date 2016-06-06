@@ -11,6 +11,10 @@
 #define SLASH "bin/sounds/axe.ogg"
 #define SLASH_MISS "bin/sounds/miss-3.ogg"
 #define DIRT "bin/sounds/footstep-dirt-05.ogg"
+#define DIRT2 "bin/sounds/footstep-dirt-08.wav"
+#define WATER "bin/sounds/footstep-water-05.wav"
+#define GRASS "bin/sounds/grass1.wav"
+#define SNOW "bin/sounds/footstep-carpet.wav"
 
 //files images
 #define ARCHER_BLUE "bin/archer_blue.png"
@@ -26,45 +30,46 @@ const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/fire_arrow1.png"},{"bin
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash1.png"},{"bin/slash2.png"},{"bin/slash3.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"}};
 const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash21.png"},{"bin/slash22.png"},{"bin/slash23.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"}};
 
+using namespace irrklang;
+// link with irrKlang.dll
+//#pragma comment(lib, "irrKlang.lib")
 
 class Sounds{
-    Sound *sounds[MAX_SOUNDS];
+    ISoundEngine* engine;
 public:
     Sounds(){
-        //zeroing the vector
-        for(int i=0;i<MAX_SOUNDS;i++)
-            sounds[i] = NULL;
-        sounds[0] = new Sound(BUTTON_CLICK);
-        sounds[1] = new Sound(FIRE_BOW);
-        sounds[2] = new Sound(FIRE_BOW_MISS);
-        sounds[3] = new Sound(LIGHTNING);
-        sounds[4] = new Sound(LIGHTNING_MISS);
-        sounds[5] = new Sound(SLASH);
-        sounds[6] = new Sound(SLASH_MISS);
-        sounds[7] = new Sound(DIRT);
+    }
+    int initialize (){
+        // start the sound engine with default parameters
+        engine = createIrrKlangDevice();
+        if (!engine){
+            printf("Could not startup engine of irrKlang\n");
+            return -1; // error starting up the engine
+        }
+        return 0;
     }
     ~Sounds(){
-        for(int i=0;sounds[i]!=NULL;i++)
-            delete sounds[i];
+        // delete engine
+        engine->drop();
     }
     //play the sound defined by "name"
     void play(string name){
         if(!name.compare("button"))
-            sounds[0]->play();
+            engine->play2D(BUTTON_CLICK);
         else if(!name.compare("fire bow"))
-            sounds[1]->play();
+            engine->play2D(FIRE_BOW);
         else if(!name.compare("fire bow miss"))
-            sounds[2]->play();
+            engine->play2D(FIRE_BOW_MISS);
         else if(!name.compare("lightning"))
-            sounds[3]->play();
+            engine->play2D(LIGHTNING);
         else if(!name.compare("lightning miss"))
-            sounds[4]->play();
+            engine->play2D(LIGHTNING_MISS);
         else if(!name.compare("slash"))
-            sounds[5]->play();
+            engine->play2D(SLASH);
         else if(!name.compare("slash miss"))
-            sounds[6]->play();
+            engine->play2D(SLASH_MISS);
         else if(!name.compare("walk dirt"))
-            sounds[7]->play();
+            engine->play2D(DIRT);
         else
             cout << "Failed to play \"" << name << "\" sound\n";
     }

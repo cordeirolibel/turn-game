@@ -5,7 +5,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
-
+#include <irrKlang.h>
 #define GAME_NAME "Turno"
 
 #ifdef __linux__
@@ -168,7 +168,6 @@ class Screen{
     ALLEGRO_EVENT_QUEUE *eventQueue;
 public:
     Screen(){
-
     }
     virtual ~Screen(){
         //destroy all instance

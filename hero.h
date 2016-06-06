@@ -11,7 +11,8 @@ class Menu;
 int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh);
 
 class Hero{
-    const int speed;
+    const int initSpeed;
+    int speed;
     const Team team;
     const int initHp;
     const int atk;
@@ -26,7 +27,7 @@ class Hero{
     int damageDraw;//-1 if not print
     bool attack_flag;
 public:
-    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__):speed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__){
+    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__){
         hp = initHp;
         side = initSide;
         image = _image;
@@ -34,6 +35,7 @@ public:
         moveTime = 0;
         damageDraw = -1;
         attack_flag = false;
+        speed = initSpeed;
         //some the new hero class
         numOfHeroes++;
     }

@@ -103,7 +103,7 @@ public:
 int Game::initialize(){
     //initialize screen
     if(Screen::initialize())
-        return 1;
+        return -1;
     //initialize random seed
     srand(time(NULL));
     //initialize variables
@@ -112,6 +112,9 @@ int Game::initialize(){
     animate = new Animate;
     sounds = new Sounds;
     lastTileSelected = new Point(1,1);
+    //initialize sounds
+    if(sounds->initialize())
+        return -1;
     //set which team is ini
     int rando = rand()%2;
     if(rando)
