@@ -1,19 +1,14 @@
 #include <time.h>
 
-#define MAX_TEXT 50
 #define MAX_HEROES 50
 
 //directories
-#define PONTO "bin/ponto.wav"
 #define FUNDO "bin/map.png"
 #define CURSOR "bin/cursor.png"
-#define MENU "bin/menu.png"
-//#define FONT_BIG "bin/pirulen.ttf"
 #define FONT_BIG "bin/Carnevalee Freakshow.ttf"
 #define SIZE_FONT_BIG 32
 #define FONT_MEDIUM "bin/pirulen.ttf"
 #define SIZE_FONT_MEDIUM 16
-
 
 class Menu;
 
@@ -32,6 +27,7 @@ class Game:public Screen{
     Mouse *mouse;
     Image *attackDraw;
     Animate *animate;
+    Sounds* sounds;
     Pixel_Point* attackDrawPixel;
     Point* lastTileSelected;
     Team turnTeam;
@@ -47,6 +43,7 @@ public:
         delete font_medium;
         delete mouse;
         delete animate;
+        delete sounds;
         delete lastTileSelected;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
@@ -93,23 +90,31 @@ public:
     void move_mouse(int x, int y){
         mouse->moves(x,y);
     }
+    //buffer to screen
+    void update_screen(){
+        al_flip_display();
+    }
     //return the mouse position
     Pixel_Point get_mouse_pixel(){
-        return *mouse->get_pixel();
+        return mouse->get_pixel();
     }
 };
 
 int Game::initialize(){
     //initialize screen
     if(Screen::initialize())
-        return 1;
+        return -1;
     //initialize random seed
     srand(time(NULL));
     //initialize variables
     attackDraw = NULL;
     attackDrawPixel = new Pixel_Point(0,0);
     animate = new Animate;
+    sounds = new Sounds;
     lastTileSelected = new Point(1,1);
+    //initialize sounds
+    if(sounds->initialize())
+        return -1;
     //set which team is ini
     int rando = rand()%2;
     if(rando)
@@ -122,7 +127,7 @@ int Game::initialize(){
     mouse = new Mouse(CURSOR);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
     heroes = new Hero*[MAX_HEROES];
-    menu = new Menu(MENU);
+    menu = new Menu();
     //create the heroes
     init_heroes();
     return 0;
@@ -179,189 +184,6 @@ void Game::draw_rectangles(){
 
 //updates mapa when click in tile point
 void Game::tile_click(Point point){
-<<<<<<< HEAD
-    //clicked in the same position, do anything
-    if((lastTileSelected->x == point.x)&&(lastTileSelected->y == point.y))
-        return;
-    //if a hero into the tile
-    if(mapa->tiles[point.y-1][point.x-1]->hero != NULL ){
-        //hero is the same team of turnTeam
-        if(mapa->tiles[point.y-1][point.x-1]->hero->get_team()==turnTeam){
-            //in the last turn no selected a hero
-            if(!heroFlag){
-                //clear any tile selected
-                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-                //draw actual rectangle
-                mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                //set which hero draw information in menu
-                menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-                //the weight in start position is 0
-                mapa->tiles[point.y-1][point.x-1]->weight = 0;
-                //find the space of walk for the hero
-                space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-                //save the last click is a hero
-                heroFlag = true;
-            }
-            //last hero and the new hero is the same team
-            else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
-                //clear the range space
-                clear_space_walk(mapa,*lastTileSelected);
-                //draw actual rectangle
-                mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                //set which hero draw information in menu
-                menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-                //the weight in start position is 0
-                mapa->tiles[point.y-1][point.x-1]->weight = 0;
-                //find the space of walk for the hero
-                space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-            }
-            //in the last turn selected a hero and new selected hero in the different team
-            else{
-                //clear any tile selected
-                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-                //draw actual rectangle
-                mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                //set which hero draw information in menu
-                menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-                //the weight in start position is 0
-                mapa->tiles[point.y-1][point.x-1]->weight = 0;
-                //find the space of walk for the hero
-                space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-                //save the last click is a hero
-                heroFlag = true;
-            }
-        }
-        //hero is not the same team of turnTeam
-        else{
-            //in the last turn no selected a hero
-            if(!heroFlag){
-                //clear any tile selected
-                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-                //draw actual rectangle
-                mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                //set which hero draw information in menu
-                menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-                //save the last click is a hero
-                heroFlag = true;
-            }
-            //last hero and the new hero is the same team
-            else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
-                //clear any tile selected
-                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-                //draw actual rectangle
-                mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                //set which hero draw information in menu
-                menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-            }
-            //in the last turn selected a hero and new selected hero in the different team, battle
-            else{
-                //find the best point of attack
-                Point atkPoint;
-                atkPoint = attack_point(lastTileSelected, &point);
-                //return null(0,0), do not have speed to attack (out of range)
-                if((atkPoint.x==0)&&(atkPoint.y==0)){
-                    //clear any tile selected
-                    mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-                    //draw actual rectangle
-                    mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                    //set which hero draw information in menu
-                    menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-                }
-                //have speed to attack
-                else{
-                    cout << "oi";
-                    //move the hero
-                    move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
-                    //change the side of look heroes, for the battle
-                    //attacker in the right
-                    if(point.x<atkPoint.x){
-                        //set your sides
-                        mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
-                        mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
-                    }
-                    //attacker in the left
-                    else if(atkPoint.x<point.x){
-                        //set your sides
-                        mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
-                        mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
-                    }
-                    //clear the range space
-                    clear_space_walk(mapa,*lastTileSelected);
-                    //attack heroes
-                    attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]);
-                    //draw actual rectangle
-                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
-                    //save the last click position
-                    *lastTileSelected = atkPoint;
-                    return;
-                }
-            }
-        }
-    }
-    //if do not have a hero into this tile
-    else{
-        //in the last turn no selected a hero
-        if(!heroFlag){
-            //clear any tile selected
-            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-            //draw actual rectangle
-            mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-        }
-        //new click in the range of the hero
-        else if(mapa->tiles[point.y-1][point.x-1]->weight<WEIGHT_MAX){
-            //clear any tile selected
-            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-            //move the hero
-            move_hero(mapa->tiles[point.y-1][point.x-1], NULL);
-            //clear the range space
-            clear_space_walk(mapa,*lastTileSelected);
-            //draw actual rectangle
-            mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-            //the weight in start position is 0
-            mapa->tiles[point.y-1][point.x-1]->weight = 0;
-            //find the space of walk for the hero
-            space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-        }
-        //click out of the range of hero
-        else {
-            //clear all information of the hero in menu and clear your space walk
-            clear_space_walk(mapa,*lastTileSelected);
-            heroFlag = false;
-            menu->set_hero(NULL);
-            //clear any tile selected
-            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-            //draw actual rectangle
-            mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-        }
-    }
-    //save the last click position
-    *lastTileSelected = point;
-}
-//updates mapa when click in tile point
-/*void Game::tile_click(Point point){
-    //clicked in the same position, do anything
-    if((lastTileSelected->x == point.x)&&(lastTileSelected->y == point.y))
-        return;
-    //clear any tile selected
-    mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-    //draw actual rectangle
-    mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-    //if a hero into the tile and the hero is the same team turnTeam
-    if((mapa->tiles[point.y-1][point.x-1]->hero != NULL )&& (mapa->tiles[point.y-1][point.x-1]->hero->get_team()==turnTeam)){
-        //in the last turn no selected a hero
-        if(!heroFlag ){
-            //set which hero draw information in menu
-            menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
-            //the weight in start position is 0
-            mapa->tiles[point.y-1][point.x-1]->weight = 0;
-            //find the space of walk for the hero
-            space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-            //save the last click is a hero
-            heroFlag = true;
-        }
-        //in the last turn selected a hero and new selected hero in the same team
-        else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
-=======
     //clicked in the same position, do anything
     if((lastTileSelected->x == point.x)&&(lastTileSelected->y == point.y))
         return;
@@ -498,7 +320,6 @@ void Game::tile_click(Point point){
             mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
             //move the hero
             move_hero(mapa->tiles[point.y-1][point.x-1], NULL);
->>>>>>> 6fc40e7327bd620969165b73a5295001b015a7c3
             //clear the range space
             clear_space_walk(mapa,*lastTileSelected);
             //draw actual rectangle
@@ -506,75 +327,17 @@ void Game::tile_click(Point point){
             //the weight in start position is 0
             mapa->tiles[point.y-1][point.x-1]->weight = 0;
             //find the space of walk for the hero
-<<<<<<< HEAD
-            space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-        }
-        //in the last turn selected a hero and new selected hero in the different team, battle
-        else{
-            //find the best point of attack
-            Point atkPoint;
-            atkPoint = attack_point(lastTileSelected, &point);
-            //return null, do not have speed to attack (out of range)
-            if((atkPoint.x==0)&&(atkPoint.y==0)){
-                //draw last rectangle and make anything
-                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(WHITE);
-                mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
-                return;
-            }
-            //move the hero
-            move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
-            //change the side of look heroes, for the battle
-            //attacker in the right
-            if(point.x<atkPoint.x){
-                //set your sides
-                mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
-                mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
-            }
-            //attacker in the left
-            else if(atkPoint.x<point.x){
-                //set your sides
-                mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
-                mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
-            }
-            //clear the range space
-=======
             space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
         }
         //click out of the range of hero
         else {
             //clear all information of the hero in menu and clear your space walk
->>>>>>> 6fc40e7327bd620969165b73a5295001b015a7c3
             clear_space_walk(mapa,*lastTileSelected);
             heroFlag = false;
             menu->set_hero(NULL);
             //clear any tile selected
             mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
             //draw actual rectangle
-<<<<<<< HEAD
-            mapa->tiles[point.y-1][point.x-1]->set_color(BLACK);
-            mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
-            //save the last click position
-            *lastTileSelected = atkPoint;
-            return;
-        }
-    }
-    //if the last click is a hero, and the new click in the range of hero
-    else if((heroFlag)&&(mapa->tiles[point.y-1][point.x-1]->weight<WEIGHT_MAX)){
-        //move the hero
-        move_hero(mapa->tiles[point.y-1][point.x-1], NULL);
-        //clear the range space
-        clear_space_walk(mapa,*lastTileSelected);
-        //draw actual rectangle
-        mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-        //the weight in start position is 0
-        mapa->tiles[point.y-1][point.x-1]->weight = 0;
-        //find the space of walk for the hero
-        space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
-    }
-    //if the last click is a hero, and the new click out of the range of hero
-    else if(heroFlag){
-        //clear all information of the hero in menu and clear your space walk
-=======
             mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
         }
     }
@@ -583,47 +346,28 @@ void Game::tile_click(Point point){
 }
 //update the game for next turn
 void Game::next_turn(){
+    //sound of button click
+    sounds->play("button");
     //clear any tile selected
     mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
     //in the last click selected a hero
     if(heroFlag){
         //clear all information of the hero in menu and clear your space walk
->>>>>>> 6fc40e7327bd620969165b73a5295001b015a7c3
         clear_space_walk(mapa,*lastTileSelected);
         heroFlag = false;
         menu->set_hero(NULL);
     }
-<<<<<<< HEAD
-    //save the last click position
-    *lastTileSelected = point;
-}//*/
-//update the game for next turn
-void Game::next_turn(){
-    //in the last click selected a hero
-    if(heroFlag){
-        //clear all information of the hero in menu and clear your space walk
-        clear_space_walk(mapa,*lastTileSelected);
-        heroFlag = false;
-        menu->set_hero(NULL);
-    }
-=======
     //reset lastTileSelected
     lastTileSelected->x=1;
     lastTileSelected->y=1;
->>>>>>> 6fc40e7327bd620969165b73a5295001b015a7c3
     //swap the turnTeam
     if(turnTeam==ONE)
         turnTeam = TWO;
     else
-<<<<<<< HEAD
-        turnTeam = ONE;
-
-=======
         turnTeam = ONE;
     //set anything hero is attacker
     for(int i=0;i<Hero::get_num_of_heroes();i++)
         heroes[i]->set_attack_flag(false);
->>>>>>> 6fc40e7327bd620969165b73a5295001b015a7c3
 }
 
 //the best point of attack
@@ -688,8 +432,12 @@ void Game::attack(Tile* attacker, Tile* defender){
     //set the image and position start of animation
     attackDraw = animate->animation(attacker->hero->get_class(),attacker->pixel,defender->pixel,i,attackDrawPixel);
     //damage in random
-    if(defender->hero->get_evasion()<=(rand()%100))
+    if(defender->hero->get_evasion()<=(rand()%100)){
         damage = attacker->hero->get_atk();
+        sounds->play(attacker->hero->get_class(),"attack");
+    }
+    else
+        sounds->play(attacker->hero->get_class(),"attack miss");
     while(i<IMGS_ANIMATE){
         //wait a event
         event = wait_event();
@@ -746,6 +494,7 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     //set the time of move and wait
     actualTile->moveHero->set_move();
     ALLEGRO_EVENT event;
+    sounds->play("walk dirt");//========================================VER MELHOR
     //wait the time of move
     while(!actualTile->moveHero->is_ready_to_move()){
         event = wait_event();
@@ -866,5 +615,4 @@ void Game::init_heroes(){
     y+=4;
     heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER);
     mapa->tiles[y-1][x-1]->hero = heroes[19];
-
 }

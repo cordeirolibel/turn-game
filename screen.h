@@ -5,7 +5,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
-
+#include <irrKlang.h>
 #define GAME_NAME "Turno"
 
 #ifdef __linux__
@@ -39,9 +39,14 @@ using namespace std;
 enum Side{
     RIGHT=0,LEFT, UP
 };
-
+//Interface to classes Pixel_Point and Point
+class Interface_Point{
+public:
+    virtual ~Interface_Point(){};
+    virtual void set_point(int _x, int _y) = 0;
+};
 //coordinates in pixels
-class Pixel_Point{
+class Pixel_Point:public Interface_Point{
 public:
     int x, y;
     Pixel_Point(){};
@@ -49,15 +54,33 @@ public:
         x=_x;
         y=_y;
     }
+    void set_point(int _x, int _y){
+        x=_x;
+        y=_y;
+    }
+    //operator overloading sum
+    Pixel_Point operator+(Pixel_Point pixel){
+        Pixel_Point saida(x+pixel.x,y+pixel.y);
+        return saida;
+    }
 };
 //coordinates in tiles
-class Point{
+class Point:public Interface_Point{
 public:
     int x, y;
     Point(){};
     Point(int _x, int _y){
         x=_x;
         y=_y;
+    }
+    void set_point(int _x, int _y){
+        x=_x;
+        y=_y;
+    }
+    //operator overloading sum
+    Point operator+(Point point){
+        Point saida(x+point.x,y+point.y);
+        return saida;
     }
 };
 
@@ -145,7 +168,6 @@ class Screen{
     ALLEGRO_EVENT_QUEUE *eventQueue;
 public:
     Screen(){
-
     }
     virtual ~Screen(){
         //destroy all instance
@@ -161,9 +183,7 @@ public:
         al_clear_to_color(al_map_rgb(0,0,0));
     }
     //buffer to screen
-    void update_screen(){
-        al_flip_display();
-    }
+    virtual void update_screen() = 0;
     //wait the event occurs
     ALLEGRO_EVENT wait_event(){
         ALLEGRO_EVENT event;
@@ -261,27 +281,23 @@ int Screen::initialize(){
     return 0;
 }
 
-class Mouse : public Image {
-    Pixel_Point *pixel;
+class Mouse : public Image, private Pixel_Point{
 public:
-    Mouse(const char* directory):Image(directory){
-        //allocate and zero
-        pixel = new Pixel_Point;
-        pixel->x=0;
-        pixel->y=0;
+    Mouse(const char* directory):Image(directory),Pixel_Point(0,0){
     }
-    void moves(int x, int y){
-        pixel->x = x;
-        pixel->y = y;
+    void moves(int _x, int _y){
+        x = _x;
+        y = _y;
     }
-    Pixel_Point* get_pixel(){
+    Pixel_Point get_pixel(){
+        Pixel_Point pixel(x,y);
         return pixel;
     }
     int get_x(){
-        return pixel->x;
+        return x;
     }
     int get_y(){
-        return pixel->y;
+        return y;
     }
 };
 
