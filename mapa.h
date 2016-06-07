@@ -17,6 +17,7 @@
 #define SOLDIER_RED "bin/soldier_red.png"
 const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/lightning1.png"},{"bin/lightning2.png"},{"bin/lightning3.png"},{"bin/lightning4.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"},{"bin/lightning5.png"},{"bin/lightning6.png"}};
 //const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow1.png"},{"bin/arrow2.png"},{"bin/arrow3.png"},{"bin/arrow4.png"},{"bin/arrow5.png"},{"bin/arrow6.png"},{"bin/arrow6.png"},{"bin/arrow6.png"}};
+//const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"},{"bin/bola.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow1.png"},{"bin/fire_arrow2.png"},{"bin/fire_arrow3.png"},{"bin/fire_arrow4.png"},{"bin/fire_arrow5.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"},{"bin/fire_arrow6.png"}};
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash1.png"},{"bin/slash2.png"},{"bin/slash3.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"},{"bin/slash4.png"}};
 const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/slash21.png"},{"bin/slash22.png"},{"bin/slash23.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"},{"bin/slash24.png"}};
@@ -102,7 +103,7 @@ public:
             return NULL;
     }
     //return image and or position of animation of the class
-    Image* animation(Class _class, Pixel_Point* attack,Pixel_Point* defender,int frame, Pixel_Point* imgPosition){
+    Image* animation(Class _class, Pixel_Point* attack,Pixel_Point* defender,int frame, Pixel_Point* imgPosition, Sounds** sounds){
         if(frame>=IMGS_ANIMATE)
             return NULL;
         //if class is a mage

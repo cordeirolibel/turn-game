@@ -129,6 +129,13 @@ public:
     ~Sound(){
         al_destroy_sample(sound);
     }
+    //play the sound
+    void play(bool loop=false){
+        if(loop)//in loop
+            al_play_sample(sound, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
+        else
+            al_play_sample(sound, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_ONCE,NULL);
+    }
 };
 
 //All configuration of screen
