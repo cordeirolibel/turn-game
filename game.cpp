@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+﻿//#include <stdio.h>
 #include <iostream>
 
 #include "screen.h"
@@ -7,7 +7,6 @@
 #include "menu.h"
 #include "files.h"
 #include "game.h"
-
 
 using namespace std;
 

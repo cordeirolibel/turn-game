@@ -142,6 +142,18 @@ public:
     void moves(Point _point){
         *point = _point;
     }
+    //degrees speed
+    void walk(int value){
+        speed -= value;
+        if(speed<0)
+            speed=0;
+    }
+    void clear_speed(){
+        speed = 0;
+    }
+    void reset_speed(){
+        speed = initSpeed;
+    }
     //get number of class of the Hero
     static int get_num_of_heroes(){
         return numOfHeroes;

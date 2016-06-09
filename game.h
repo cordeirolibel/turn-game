@@ -210,6 +210,8 @@ void Game::tile_click(Point point){
             else if(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team()==mapa->tiles[point.y-1][point.x-1]->hero->get_team()){
                 //clear the range space
                 clear_space_walk(mapa,*lastTileSelected);
+                //clear any tile selected
+                mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
                 //draw actual rectangle
                 mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
                 //set which hero draw information in menu
@@ -366,8 +368,10 @@ void Game::next_turn(){
     else
         turnTeam = ONE;
     //set anything hero is attacker
-    for(int i=0;i<Hero::get_num_of_heroes();i++)
+    for(int i=0;i<Hero::get_num_of_heroes();i++){
         heroes[i]->set_attack_flag(false);
+        heroes[i]->reset_speed();
+    }
 }
 
 //the best point of attack
@@ -464,6 +468,8 @@ void Game::attack(Tile* attacker, Tile* defender){
     }
     //no draw damage
     defender->hero->set_damage(-1);
+    //speed clear
+    attacker->hero->clear_speed();
     //apply damage and check if defender is dead
     if(defender->hero->damage(damage)){
         //delete the defender
@@ -512,6 +518,7 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     actualTile->moveHero->moves(find_rec(nextTile->pixel));
     nextTile->moveHero = actualTile->moveHero;
     actualTile->moveHero = NULL;
+    nextTile->moveHero->walk(1);
     //change the side of hero
     if(actualTile->pixel->x < nextTile->pixel->x)
         nextTile->moveHero->set_side(RIGHT);

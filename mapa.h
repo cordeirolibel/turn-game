@@ -87,7 +87,7 @@ public:
     ~Map(){
         //deallocate tiles
         for(int i=0;i<rows;i++)
-            for(int j=0;j<columns;j++)
+            for(int j=0;j<columns;j++);
                  delete tiles[i][j];
         for(int i=0;i<rows;i++)
             delete [] tiles[i];
@@ -96,4 +96,9 @@ public:
     //return the pixel point of the Hero
     Pixel_Point get_hero_pixel_point(Hero* hero);
 };
+enum terreno{
+    AGUA,
+    TERRA,
 
+};
+terreno terreno[]
