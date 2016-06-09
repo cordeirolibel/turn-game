@@ -2,7 +2,8 @@
 #define ATTACK_TIME 5//in frames
 
 #define HP_MAX 50
-
+#define HP_MAX_BAR_DRAW 12
+#define RADIUS_MOVE_DRAW 2
 //defined in screen.h
 class Point;
 class Pixel_Point;
@@ -58,15 +59,30 @@ public:
         Pixel_Point pixel = find_rec(point);
         //draw here he look
         if(side==RIGHT)
-            al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,0);
+            al_draw_bitmap(image->get_bitmap(),pixel.x-1,pixel.y-1,0);
         else
-            al_draw_bitmap(image->get_bitmap(),pixel.x,pixel.y,1);
+            al_draw_bitmap(image->get_bitmap(),pixel.x-1,pixel.y-1,1);
         //draw hp live
-        int fit = mapping(hp,0,HP_MAX,0,12);
+        int fit = mapping(hp,0,HP_MAX,0,HP_MAX_BAR_DRAW);
         if(side==RIGHT)
-            al_draw_rectangle(pixel.x+3,pixel.y+2,pixel.x+4,pixel.y+fit+2,RED,1);
+            al_draw_rectangle(pixel.x+2,pixel.y+2,pixel.x+3,pixel.y+fit+2,RED,1);
         else
-            al_draw_rectangle(pixel.x-3+SIZE_TILE,pixel.y+2,pixel.x-4+SIZE_TILE,pixel.y+fit+2,RED,1);
+            al_draw_rectangle(pixel.x-3+SIZE_TILE,pixel.y+1,pixel.x-4+SIZE_TILE,pixel.y+fit+2,RED,1);
+        //draw in different if is possible to move
+        ALLEGRO_COLOR color;
+        if(speed==initSpeed)
+            color=GREEN;
+        else if(speed<=0)
+            color=BLACK;
+        else
+            color=YELLOW;
+        //draw the circle
+        if(side==RIGHT)
+            al_draw_filled_circle(pixel.x+SIZE_TILE-4, pixel.y+2, RADIUS_MOVE_DRAW,color);
+        else
+            al_draw_filled_circle(pixel.x+2, pixel.y+2, RADIUS_MOVE_DRAW,color);
+
+
     }
     ALLEGRO_BITMAP* get_bitmap(){
         return image->get_bitmap();
@@ -151,8 +167,12 @@ public:
     void clear_speed(){
         speed = 0;
     }
-    void reset_speed(){
-        speed = initSpeed;
+    //reset the speed of hero, in change of turn
+    void reset_speed(Team turnTeam){
+        if(turnTeam==team)
+            speed = initSpeed;
+        else
+            speed=0;
     }
     //get number of class of the Hero
     static int get_num_of_heroes(){

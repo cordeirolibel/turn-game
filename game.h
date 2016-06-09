@@ -13,8 +13,7 @@
 class Menu;
 
 //converting the value in range fromLow-fromHigh to range toLow-toHigh proportionally
-int mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh)
-{
+int mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh){
   return (int)((value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow);
 }
 
@@ -75,8 +74,8 @@ public:
     }
     //the best point of attack
     Point attack_point(Point* attacker, Point* defender);
-    //attack of heroes
-    void attack(Tile* attacker, Tile* defender);
+    //attack of heroes, return true if is possible the retaliates
+    bool attack(Tile* attacker, Tile* defender);
     //function use recursion, animate the walk of hero
     void move_hero(Tile* actualTile, Tile* nextTile);
     //if the hero is move, animate the walk
@@ -130,6 +129,8 @@ int Game::initialize(){
     menu = new Menu();
     //create the heroes
     init_heroes();
+    for(int i=0;i<Hero::get_num_of_heroes(); i++)
+        heroes[i]->reset_speed(turnTeam);
     return 0;
 }
 //update the screen with new informations
@@ -297,7 +298,9 @@ void Game::tile_click(Point point){
                     //set the hero is attacker in this turn
                     mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_attack_flag(true);
                     //attack heroes
-                    attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]);
+                    if(attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]))
+                        //retaliates
+                        attack(mapa->tiles[point.y-1][point.x-1],mapa->tiles[atkPoint.y-1][atkPoint.x-1]);
                     //draw actual rectangle
                     mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
                     //save the last click position
@@ -370,7 +373,7 @@ void Game::next_turn(){
     //set anything hero is attacker
     for(int i=0;i<Hero::get_num_of_heroes();i++){
         heroes[i]->set_attack_flag(false);
-        heroes[i]->reset_speed();
+        heroes[i]->reset_speed(turnTeam);
     }
 }
 
@@ -429,8 +432,8 @@ Point Game::attack_point(Point* attacker, Point* defender){
         return saida;
 }
 
-//attack of heroes
-void Game::attack(Tile* attacker, Tile* defender){
+//attack of heroes, return true if is possible the retaliates
+bool Game::attack(Tile* attacker, Tile* defender){
     ALLEGRO_EVENT event;
     int contTime=0, i=0, damage=0;
     //set the image and position start of animation
@@ -468,6 +471,7 @@ void Game::attack(Tile* attacker, Tile* defender){
     }
     //no draw damage
     defender->hero->set_damage(-1);
+    attackDraw = NULL;
     //speed clear
     attacker->hero->clear_speed();
     //apply damage and check if defender is dead
@@ -476,7 +480,15 @@ void Game::attack(Tile* attacker, Tile* defender){
         delete_hero();
         defender->hero = NULL;
     }
-    attackDraw = NULL;
+    //if both have attacker of long distance
+    else if(((defender->hero->get_class()==ARCHER)||(defender->hero->get_class()==MAGE))&&
+            ((attacker->hero->get_class()==ARCHER)||(attacker->hero->get_class()==MAGE)))
+        return true;
+    //if both have attacker of short distance
+    else if((defender->hero->get_class()==SOLDIER)&&(attacker->hero->get_class()==SOLDIER))
+        return true;
+    //no retaliation
+    return false;
 }
 
 //function use recursion, animate the walk of hero
