@@ -1,6 +1,6 @@
 
-const char BUTTON[2][MAX_TEXT]={{"bin/button1.png"},{"bin/button2.png"}};
-const char MENU[2][MAX_TEXT]={{"bin/menu.png"},{"bin/menu_clear.png"}};
+const char BUTTON[2][MAX_TEXT]={{"bin/imgs/button1.png"},{"bin/imgs/button2.png"}};
+const char MENU[2][MAX_TEXT]={{"bin/imgs/menu.png"},{"bin/imgs/menu_clear.png"}};
 const Pixel_Point buttonPixel(1100,15);
 #define BUTTON_SIZE_X 100
 #define BUTTON_SIZE_Y 50

@@ -3,8 +3,8 @@
 #define MAX_HEROES 50
 
 //directories
-#define FUNDO "bin/map.png"
-#define CURSOR "bin/cursor.png"
+#define FUNDO "bin/imgs/map.png"
+#define CURSOR "bin/imgs/cursor.png"
 #define FONT_BIG "bin/Carnevalee Freakshow.ttf"
 #define SIZE_FONT_BIG 32
 #define FONT_MEDIUM "bin/pirulen.ttf"
