@@ -129,8 +129,13 @@ int Game::initialize(){
     menu = new Menu();
     //create the heroes
     init_heroes();
-    for(int i=0;i<Hero::get_num_of_heroes(); i++)
+    for(int i=0;i<Hero::get_num_of_heroes(); i++){
+        if(heroes[i]->get_team()==turnTeam)
+            heroes[i]->set_attack_flag(false);
+        else
+            heroes[i]->set_attack_flag(true);
         heroes[i]->reset_speed(turnTeam);
+    }
     return 0;
 }
 //update the screen with new informations
@@ -178,8 +183,12 @@ void Game::draw_heroes(){
 void Game::draw_rectangles(){
     //print all rectangles
     for(int i=0;i<mapa->get_rows();i++)
-        for(int j=0;j<mapa->get_columns();j++)
+        for(int j=0;j<mapa->get_columns();j++){
+            //draw the rectangle
             al_draw_rectangle(mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,mapa->tiles[i][j]->pixel->x+SIZE_TILE-1,mapa->tiles[i][j]->pixel->y+SIZE_TILE-1,mapa->tiles[i][j]->color(),1);
+            if((mapa->tiles[i][j]->weightAtk<WEIGHT_MAX)&&(mapa->tiles[i][j]->weightAtk!=0))
+                al_draw_circle(mapa->tiles[i][j]->pixel->x+SIZE_TILE/2,mapa->tiles[i][j]->pixel->y+SIZE_TILE/2,SIZE_TILE/2,YELLOW,1);
+        }
 }
 
 
@@ -202,8 +211,13 @@ void Game::tile_click(Point point){
                 menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                 //the weight in start position is 0
                 mapa->tiles[point.y-1][point.x-1]->weight = 0;
+                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //find the space of walk for the hero
                 space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
+                //if the attack is long distance
+                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                    //range of attack
+                    space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
                 //save the last click is a hero
                 heroFlag = true;
             }
@@ -219,8 +233,13 @@ void Game::tile_click(Point point){
                 menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                 //the weight in start position is 0
                 mapa->tiles[point.y-1][point.x-1]->weight = 0;
+                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //find the space of walk for the hero
                 space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
+                //if the attack is long distance
+                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                    //range of attack
+                    space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
             }
             //in the last turn selected a hero and new selected hero in the different team
             else{
@@ -232,8 +251,13 @@ void Game::tile_click(Point point){
                 menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                 //the weight in start position is 0
                 mapa->tiles[point.y-1][point.x-1]->weight = 0;
+                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //find the space of walk for the hero
                 space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
+                //if the attack is long distance
+                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                    //range of attack
+                    space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
                 //save the last click is a hero
                 heroFlag = true;
             }
@@ -262,51 +286,58 @@ void Game::tile_click(Point point){
             }
             //in the last turn selected a hero and new selected hero in the different team, battle
             else{
-                //find the best point of attack
-                Point atkPoint;
-                atkPoint = attack_point(lastTileSelected, &point);
-                //return null(0,0), do not have speed to attack (out of range)
-                if(((atkPoint.x==0)&&(atkPoint.y==0))||mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_attack_flag()){
-                    //clear the range space
-                    clear_space_walk(mapa,*lastTileSelected);
-                    //clear any tile selected
-                    mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
-                    //draw actual rectangle
-                    mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
-                    //set which hero draw information in menu
-                    menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
+                /*//if is long distance
+                if(type_attack(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team())){
+                   if(mapa->tiles[point->y-1][point->x-1]==)
                 }
-                //have speed to attack
-                else{
-                    //move the hero
-                    move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
-                    //change the side of look heroes, for the battle
-                    //attacker in the right
-                    if(point.x<atkPoint.x){
-                        //set your sides
-                        mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
-                        mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
+                //if is short distance
+                else {*/
+                    //find the best point of attack
+                    Point atkPoint;
+                    atkPoint = attack_point(lastTileSelected, &point);
+                    //return null(0,0), do not have speed to attack (out of range)
+                    if(((atkPoint.x==0)&&(atkPoint.y==0))||mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_attack_flag()){
+                        //clear the range space
+                        clear_space_walk(mapa,*lastTileSelected);
+                        //clear any tile selected
+                        mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
+                        //draw actual rectangle
+                        mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
+                        //set which hero draw information in menu
+                        menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                     }
-                    //attacker in the left
-                    else if(atkPoint.x<point.x){
-                        //set your sides
-                        mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
-                        mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
+                    //have speed to attack
+                    else{
+                        //move the hero
+                        move_hero(mapa->tiles[atkPoint.y-1][atkPoint.x-1], NULL);
+                        //change the side of look heroes, for the battle
+                        //attacker in the right
+                        if(point.x<atkPoint.x){
+                            //set your sides
+                            mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(LEFT);
+                            mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
+                        }
+                        //attacker in the left
+                        else if(atkPoint.x<point.x){
+                            //set your sides
+                            mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_side(RIGHT);
+                            mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
+                        }
+                        //clear the range space
+                        clear_space_walk(mapa,*lastTileSelected);
+                        //set the hero is attacker in this turn
+                        mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_attack_flag(true);
+                        //attack heroes
+                        if(attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]))
+                            //retaliates
+                            attack(mapa->tiles[point.y-1][point.x-1],mapa->tiles[atkPoint.y-1][atkPoint.x-1]);
+                        //draw actual rectangle
+                        mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
+                        //save the last click position
+                        *lastTileSelected = atkPoint;
+                        return;
                     }
-                    //clear the range space
-                    clear_space_walk(mapa,*lastTileSelected);
-                    //set the hero is attacker in this turn
-                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->hero->set_attack_flag(true);
-                    //attack heroes
-                    if(attack(mapa->tiles[atkPoint.y-1][atkPoint.x-1],mapa->tiles[point.y-1][point.x-1]))
-                        //retaliates
-                        attack(mapa->tiles[point.y-1][point.x-1],mapa->tiles[atkPoint.y-1][atkPoint.x-1]);
-                    //draw actual rectangle
-                    mapa->tiles[atkPoint.y-1][atkPoint.x-1]->set_color(WHITE);
-                    //save the last click position
-                    *lastTileSelected = atkPoint;
-                    return;
-                }
+                //}
             }
         }
     }
@@ -331,8 +362,13 @@ void Game::tile_click(Point point){
             mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
             //the weight in start position is 0
             mapa->tiles[point.y-1][point.x-1]->weight = 0;
+            mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
             //find the space of walk for the hero
             space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
+            //if the attack is long distance
+            if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                //range of attack
+                space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
         }
         //click out of the range of hero
         else {
@@ -372,7 +408,10 @@ void Game::next_turn(){
         turnTeam = ONE;
     //set anything hero is attacker
     for(int i=0;i<Hero::get_num_of_heroes();i++){
-        heroes[i]->set_attack_flag(false);
+        if(heroes[i]->get_team()==turnTeam)
+            heroes[i]->set_attack_flag(false);
+        else
+            heroes[i]->set_attack_flag(true);
         heroes[i]->reset_speed(turnTeam);
     }
 }
@@ -480,12 +519,8 @@ bool Game::attack(Tile* attacker, Tile* defender){
         delete_hero();
         defender->hero = NULL;
     }
-    //if both have attacker of long distance
-    else if(((defender->hero->get_class()==ARCHER)||(defender->hero->get_class()==MAGE))&&
-            ((attacker->hero->get_class()==ARCHER)||(attacker->hero->get_class()==MAGE)))
-        return true;
-    //if both have attacker of short distance
-    else if((defender->hero->get_class()==SOLDIER)&&(attacker->hero->get_class()==SOLDIER))
+    //if both have attacker of long distance or short distance
+    else if(type_attack(defender->hero->get_class())==type_attack(attacker->hero->get_class()))
         return true;
     //no retaliation
     return false;
@@ -576,21 +611,21 @@ void Game::init_heroes(){
 
     //mages team 1
     x=2,y=2;
-    heroes[5] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,25,7,RIGHT,ONE,MAGE);
+    heroes[5] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,25,7,RIGHT,ONE,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=16;
-    heroes[6] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,30,7,RIGHT,ONE,MAGE);
+    heroes[6] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,30,7,RIGHT,ONE,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
 
     //archers team 1
     x=2,y=6;
-    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,25,7,RIGHT,ONE,ARCHER);
+    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,25,7,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
     y+=4;
-    heroes[8] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER);
+    heroes[8] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     y+=4;
-    heroes[9] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER);
+    heroes[9] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
 
 
@@ -618,20 +653,20 @@ void Game::init_heroes(){
 
     //mages team 2
     x=38,y=2;
-    heroes[15] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,25,7,LEFT,TWO,MAGE);
+    heroes[15] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,25,7,LEFT,TWO,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[15];
     y+=16;
-    heroes[16] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,30,7,LEFT,TWO,MAGE);
+    heroes[16] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,30,7,LEFT,TWO,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[16];
 
     //archers team 2
     x=38,y=6;
-    heroes[17] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,25,7,LEFT,TWO,ARCHER);
+    heroes[17] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,25,7,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[17];
     y+=4;
-    heroes[18] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER);
+    heroes[18] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[18];
     y+=4;
-    heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER);
+    heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[19];
 }

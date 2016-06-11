@@ -35,6 +35,7 @@ class Tile{
     float mobility;
 public:
     float weight;
+    float weightAtk;
     Tile* lastTile;
     Hero* hero;
     Hero* moveHero;
@@ -47,6 +48,7 @@ public:
         lastTile = NULL;
         mobility = 1;//============================================================VER MELHOR
         weight = WEIGHT_MAX;
+        weightAtk=WEIGHT_MAX;
         //set the color and the Left up position
         colorRec = BLACK;
     }

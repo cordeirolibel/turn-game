@@ -1,5 +1,5 @@
 #define MOVE_TIME_HERO 5//in frames
-#define ATTACK_TIME 5//in frames
+#define ATTACK_TIME 6//in frames
 
 #define HP_MAX 50
 #define HP_MAX_BAR_DRAW 12
@@ -11,6 +11,12 @@ class Menu;
 //defined in game.h
 int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh);
 
+//return true if the _class attack long distance
+bool type_attack(Class _class){
+    if(_class==MAGE||_class==ARCHER)
+        return true;
+    return false;
+}
 class Hero{
     const int initSpeed;
     int speed;
@@ -19,6 +25,7 @@ class Hero{
     const int atk;
     const int evasion;
     const Class class_;
+    const int rangeAtk;
     static int numOfHeroes;
     Side side;
     int hp;
@@ -28,14 +35,14 @@ class Hero{
     int damageDraw;//-1 if not print
     bool attack_flag;
 public:
-    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__){
+    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__,int _rangeAtk=0):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__),rangeAtk(_rangeAtk){
         hp = initHp;
         side = initSide;
         image = _image;
         point = new Point(x,y);
         moveTime = 0;
         damageDraw = -1;
-        attack_flag = false;
+        attack_flag = true;
         speed = initSpeed;
         //some the new hero class
         numOfHeroes++;
@@ -72,10 +79,12 @@ public:
         ALLEGRO_COLOR color;
         if(speed==initSpeed)
             color=GREEN;
-        else if(speed<=0)
-            color=BLACK;
-        else
+        else if(speed>0)
             color=YELLOW;
+        else if(attack_flag==false)
+            color=GREY;
+        else
+            color=BLACK;
         //draw the circle
         if(side==RIGHT)
             al_draw_filled_circle(pixel.x+SIZE_TILE-4, pixel.y+2, RADIUS_MOVE_DRAW,color);
@@ -104,6 +113,9 @@ public:
     }
     int get_atk(){
         return atk;
+    }
+    int get_range_atk(){
+        return rangeAtk;
     }
     Point* get_point(){
         return point;
@@ -187,84 +199,157 @@ Pixel_Point Map::get_hero_pixel_point(Hero* hero){
 }
 //Find the walk space in mapa, stating in point and finish when WEIGHT_MAX it is reached
 //Use the recursion and based on algorithm dijkstra
-void space_walk(Map *mapa,Point point, float weight_max, Team team){
+void space_walk(Map *mapa,Point point, float weight_max, Team team, int rangeAtk=0){
     float newWeight;
     Tile* tileCenter = mapa->tiles[point.y-1][point.x-1];
     Tile* tileAnalyze;
     //tile in Left, if not limit
     if(point.x-1>0){
         tileAnalyze = mapa->tiles[point.y-1][point.x-2];
-        //the weight for walk to here and the mobility int the tile actual
-        newWeight = tileCenter->weight + tileAnalyze->get_mobility();
-        //if in the tile had a enemy
-        if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
-            newWeight=WEIGHT_MAX;
-        //if not exist way more easy and not the limit of the speed of the hero
-        if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
-            //save the way for the tile and the new weight and color
-            tileAnalyze->lastTile = tileCenter;
-            tileAnalyze->weight = newWeight;
-            tileAnalyze->set_color(WHITE);
-            //new analysis of the space, starting the analyze tile
-            Point new_point(point.x-1,point.y);
-            space_walk(mapa,new_point,weight_max, team);
+        //if is not range to long attack
+        if(rangeAtk==0){
+            //the weight for walk to here and the mobility int the tile actual
+            newWeight = tileCenter->weight + tileAnalyze->get_mobility();
+            //if in the tile had a enemy
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
+                newWeight=WEIGHT_MAX;
+            //if not exist way more easy and not the limit of the speed of the hero
+            if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->lastTile = tileCenter;
+                tileAnalyze->weight = newWeight;
+                tileAnalyze->set_color(WHITE);
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x-1,point.y);
+                space_walk(mapa,new_point,weight_max, team);
+            }
+        }
+        //range to long attack
+        else{
+            //weight to attack
+            newWeight = tileCenter->weightAtk + 1;
+            //if in the tile had a friend
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
+                newWeight=WEIGHT_MAX;
+            if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->weightAtk = newWeight;
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x-1,point.y);
+                space_walk(mapa,new_point,weight_max, team,rangeAtk);
+            }
         }
     }
     //tile in Right, if not limit
     if(point.x<COLUMNS_TILE){
+
         tileAnalyze = mapa->tiles[point.y-1][point.x];
-        //the weight for walk to here and the mobility int the tile actual
-        newWeight = tileCenter->weight + tileAnalyze->get_mobility();
-        //if in the tile had a enemy
-        if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
-            newWeight=WEIGHT_MAX;
-        //if not exist way more easy and not the limit of the speed of the hero
-        if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
-            //save the way for the tile and the new weight and color
-            tileAnalyze->lastTile = tileCenter;
-            tileAnalyze->weight = newWeight;
-            tileAnalyze->set_color(WHITE);
-            //new analysis of the space, starting the analyze tile
-            Point new_point(point.x+1,point.y);
-            space_walk(mapa,new_point,weight_max, team);
+        //if is not range to long attack
+        if(rangeAtk==0){
+            //the weight for walk to here and the mobility int the tile actual
+            newWeight = tileCenter->weight + tileAnalyze->get_mobility();
+            //if in the tile had a enemy
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
+                newWeight=WEIGHT_MAX;
+            //if not exist way more easy and not the limit of the speed of the hero
+            if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->lastTile = tileCenter;
+                tileAnalyze->weight = newWeight;
+                tileAnalyze->set_color(WHITE);
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x+1,point.y);
+                space_walk(mapa,new_point,weight_max, team);
+            }
+        }
+        //range to long attack
+        else{
+            //weight to attack
+            newWeight = tileCenter->weightAtk + 1;
+            //if in the tile had a friend
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
+                newWeight=WEIGHT_MAX;
+            if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->weightAtk = newWeight;
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x+1,point.y);
+                space_walk(mapa,new_point,weight_max, team,rangeAtk);
+            }
         }
     }
     //tile in Up, if not limit
     if(point.y-1>0){
         tileAnalyze = mapa->tiles[point.y-2][point.x-1];
-        //the weight for walk to here and the mobility int the tile actual
-        newWeight = tileCenter->weight + tileAnalyze->get_mobility();
-        //if in the tile had a enemy
-        if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
-            newWeight=WEIGHT_MAX;
-        //if not exist way more easy and not the limit of the speed of the hero
-        if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
-            //save the way for the tile and the new weight and color
-            tileAnalyze->lastTile = tileCenter;
-            tileAnalyze->weight = newWeight;
-            tileAnalyze->set_color(WHITE);
-            //new analysis of the space, starting the analyze tile
-            Point new_point(point.x,point.y-1);
-            space_walk(mapa,new_point,weight_max, team);
+        //if is not range to long attack
+        if(rangeAtk==0){
+            //the weight for walk to here and the mobility int the tile actual
+            newWeight = tileCenter->weight + tileAnalyze->get_mobility();
+            //if in the tile had a enemy
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
+                newWeight=WEIGHT_MAX;
+            //if not exist way more easy and not the limit of the speed of the hero
+            if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->lastTile = tileCenter;
+                tileAnalyze->weight = newWeight;
+                tileAnalyze->set_color(WHITE);
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x,point.y-1);
+                space_walk(mapa,new_point,weight_max, team);
+            }
+        }
+        //range to long attack
+        else{
+            //weight to attack
+            newWeight = tileCenter->weightAtk + 1;
+            //if in the tile had a friend
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
+                newWeight=WEIGHT_MAX;
+            if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->weightAtk = newWeight;
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x,point.y-1);
+                space_walk(mapa,new_point,weight_max, team,rangeAtk);
+            }
         }
     }
     //tile in Down, if not limit
     if(point.y<ROWS_TILE){
         tileAnalyze = mapa->tiles[point.y][point.x-1];
-        //the weight for walk to here and the mobility int the tile actual
-        newWeight = tileCenter->weight + tileAnalyze->get_mobility();
-        //if in the tile had a enemy
-        if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
-            newWeight=WEIGHT_MAX;
-        //if not exist way more easy and not the limit of the speed of the hero
-        if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
-            //save the way for the tile and the new weight and color
-            tileAnalyze->lastTile = tileCenter;
-            tileAnalyze->weight = newWeight;
-            tileAnalyze->set_color(WHITE);
-            //new analysis of the space, starting the analyze tile
-            Point new_point(point.x,point.y+1);
-            space_walk(mapa,new_point,weight_max, team);
+        //if is not range to long attack
+        if(rangeAtk==0){
+            //the weight for walk to here and the mobility int the tile actual
+            newWeight = tileCenter->weight + tileAnalyze->get_mobility();
+            //if in the tile had a enemy
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()!=team))
+                newWeight=WEIGHT_MAX;
+            //if not exist way more easy and not the limit of the speed of the hero
+            if((newWeight<tileAnalyze->weight)&&(newWeight<=weight_max)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->lastTile = tileCenter;
+                tileAnalyze->weight = newWeight;
+                tileAnalyze->set_color(WHITE);
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x,point.y+1);
+                space_walk(mapa,new_point,weight_max, team);
+            }
+        }
+        //range to long attack
+        else{
+            //weight to attack
+            newWeight = tileCenter->weightAtk + 1;
+            //if in the tile had a friend
+            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
+                newWeight=WEIGHT_MAX;
+            if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
+                //save the way for the tile and the new weight and color
+                tileAnalyze->weightAtk = newWeight;
+                //new analysis of the space, starting the analyze tile
+                Point new_point(point.x,point.y+1);
+                space_walk(mapa,new_point,weight_max, team,rangeAtk);
+            }
         }
     }
 }
@@ -274,9 +359,10 @@ void clear_space_walk(Map *mapa, Point point){
     //tile in Left, if not limit
     if(point.x-1>0){
         //if the tile is accessible for the point
-        if(mapa->tiles[point.y-1][point.x-2]->weight!=WEIGHT_MAX){
+        if(mapa->tiles[point.y-1][point.x-2]->weight!=WEIGHT_MAX||mapa->tiles[point.y-1][point.x-2]->weightAtk!=WEIGHT_MAX){
             //set the infinity distance, clear the all values
             mapa->tiles[point.y-1][point.x-2]->weight = WEIGHT_MAX;
+            mapa->tiles[point.y-1][point.x-2]->weightAtk = WEIGHT_MAX;
             mapa->tiles[point.y-1][point.x-2]->lastTile = NULL;
             mapa->tiles[point.y-1][point.x-2]->set_color(BLACK);
             //clear the neighbors of the new point - recursion
@@ -287,9 +373,10 @@ void clear_space_walk(Map *mapa, Point point){
     //tile in Right, if not limit
     if(point.x<COLUMNS_TILE){
         //if the tile is accessible for the point
-        if(mapa->tiles[point.y-1][point.x]->weight!=WEIGHT_MAX){
+        if(mapa->tiles[point.y-1][point.x]->weight!=WEIGHT_MAX||mapa->tiles[point.y-1][point.x]->weightAtk!=WEIGHT_MAX){
             //set the infinity distance, clear the all values
             mapa->tiles[point.y-1][point.x]->weight = WEIGHT_MAX;
+            mapa->tiles[point.y-1][point.x]->weightAtk = WEIGHT_MAX;
             mapa->tiles[point.y-1][point.x]->lastTile = NULL;
             mapa->tiles[point.y-1][point.x]->set_color(BLACK);
             //clear the neighbors of the new point - recursion
@@ -300,9 +387,10 @@ void clear_space_walk(Map *mapa, Point point){
     //tile in Up, if not limit
     if(point.y-1>0){
         //if the tile is accessible for the point
-        if(mapa->tiles[point.y-2][point.x-1]->weight!=WEIGHT_MAX){
+        if(mapa->tiles[point.y-2][point.x-1]->weight!=WEIGHT_MAX||mapa->tiles[point.y-2][point.x-1]->weightAtk!=WEIGHT_MAX){
             //set the infinity distance, clear the all values
             mapa->tiles[point.y-2][point.x-1]->weight = WEIGHT_MAX;
+            mapa->tiles[point.y-2][point.x-1]->weightAtk = WEIGHT_MAX;
             mapa->tiles[point.y-2][point.x-1]->lastTile = NULL;
             mapa->tiles[point.y-2][point.x-1]->set_color(BLACK);
             //clear the neighbors of the new point - recursion
@@ -313,9 +401,10 @@ void clear_space_walk(Map *mapa, Point point){
     //tile in Down, if not limit
     if(point.y<ROWS_TILE){
         //if the tile is accessible for the point
-        if(mapa->tiles[point.y][point.x-1]->weight!=WEIGHT_MAX){
+        if(mapa->tiles[point.y][point.x-1]->weight!=WEIGHT_MAX||mapa->tiles[point.y][point.x-1]->weightAtk!=WEIGHT_MAX){
             //set the infinity distance, clear the all values
             mapa->tiles[point.y][point.x-1]->weight = WEIGHT_MAX;
+            mapa->tiles[point.y][point.x-1]->weightAtk = WEIGHT_MAX;
             mapa->tiles[point.y][point.x-1]->lastTile = NULL;
             mapa->tiles[point.y][point.x-1]->set_color(BLACK);
             //clear the neighbors of the new point - recursion
