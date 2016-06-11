@@ -163,24 +163,42 @@ public:
             //return image of animation
             return (imgMageAttack[frame]);
         }
-        //if class is a Archer
+        //if class is a Archer, simulate launching projectile
+        //https://en.wikipedia.org/wiki/Trajectory_of_a_projectile
         else if(_class==ARCHER){
-            //set position of image
-            int fit = (defender->x-attack->x)*(frame)/(IMGS_ANIMATE-1);
-            imgPosition->x = attack->x+fit;
+            int h;
+            //distance of enemies
+            int d = defender->x - attack->x;
+            //set positionX of image
+            int dx = d*(frame)/(IMGS_ANIMATE-1);
+            imgPosition->x = attack->x+dx;
+            //arrow is up and attacker in below of defender
+            if((frame)<(IMGS_ANIMATE/2)&&(defender->y<=attack->y))
+                h=attack->y-defender->y+SIZE_TILE;
+            //arrow is up and attacker in top of defender
+            else if((frame)<(IMGS_ANIMATE/2)&&(defender->y>attack->y))
+                h=SIZE_TILE;
+            //arrow is down and attacker in top of defender
+            else if((frame)>=(IMGS_ANIMATE/2)&&(defender->y<=attack->y))
+                h=SIZE_TILE;
+            //arrow is down and attacker in top of defender
+            else
+                h=defender->y-attack->y+SIZE_TILE;
+            //calculate speed initial in launching projectile
+            float sin0 = (float)h/sqrt((d/4)*(d/4)+h*h);
+            float cos0 = (float)d/(4*sqrt((d/4)*(d/4)+h*h));
+            float tan0 = (float)h*4/d;
+            float speed0=(float)sqrt(9.8*d/(2*sin0*cos0));
+            int dy=(int)(dx*tan0-9.8*(dx/(speed0*cos0))*(dx/(speed0*cos0))/2);
+            if(frame<(IMGS_ANIMATE/2))
+                imgPosition->y = attack->y-dy;
+            else
+                imgPosition->y = defender->y-dy;
             //set side of arrow
             if(attack->x < defender->x)
                 imgArcherAttack[frame]->side = RIGHT;
             else
                 imgArcherAttack[frame]->side = LEFT;
-            //arrow is up
-            if((frame)<(IMGS_ANIMATE/2))
-                imgPosition->y = attack->y-20*frame;
-            //arrow is down
-            else if((frame)>(IMGS_ANIMATE/2)){
-                int maxHeight = attack->y-20*(IMGS_ANIMATE/2-1);
-                imgPosition->y += (defender->y-maxHeight)/(IMGS_ANIMATE/2-1);
-            }
             //return image of animation
             return (imgArcherAttack[frame]);
         }

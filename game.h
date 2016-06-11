@@ -286,12 +286,49 @@ void Game::tile_click(Point point){
             }
             //in the last turn selected a hero and new selected hero in the different team, battle
             else{
-                /*//if is long distance
-                if(type_attack(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_team())){
-                   if(mapa->tiles[point->y-1][point->x-1]==)
+                //if is long distance
+                if(type_attack(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_class())){
+                    //do not have speed to attack (out of range)
+                   if((mapa->tiles[point.y-1][point.x-1]->weightAtk==WEIGHT_MAX)||mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->get_attack_flag()){
+                        //clear the range space
+                        clear_space_walk(mapa,*lastTileSelected);
+                        //clear any tile selected
+                        mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
+                        //draw actual rectangle
+                        mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
+                        //set which hero draw information in menu
+                        menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
+                   }
+                   //have range to attack
+                   else{
+                        //change the side of look heroes, for the battle
+                        //attacker in the right
+                        if(point.x<lastTileSelected->x){
+                            //set your sides
+                            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->set_side(LEFT);
+                            mapa->tiles[point.y-1][point.x-1]->hero->set_side(RIGHT);
+                        }
+                        //attacker in the left
+                        else if(lastTileSelected->x<point.x){
+                            //set your sides
+                            mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->set_side(RIGHT);
+                            mapa->tiles[point.y-1][point.x-1]->hero->set_side(LEFT);
+                        }
+                        //clear the range space
+                        clear_space_walk(mapa,*lastTileSelected);
+                        //set the hero is attacker in this turn
+                        mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->hero->set_attack_flag(true);
+                        //attack heroes
+                        if(attack(mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1],mapa->tiles[point.y-1][point.x-1]))
+                            //retaliates
+                            attack(mapa->tiles[point.y-1][point.x-1],mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]);
+                        //draw actual rectangle
+                        mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(WHITE);
+                        return;
+                   }
                 }
                 //if is short distance
-                else {*/
+                else {
                     //find the best point of attack
                     Point atkPoint;
                     atkPoint = attack_point(lastTileSelected, &point);
@@ -337,7 +374,7 @@ void Game::tile_click(Point point){
                         *lastTileSelected = atkPoint;
                         return;
                     }
-                //}
+                }
             }
         }
     }
@@ -619,8 +656,8 @@ void Game::init_heroes(){
 
     //archers team 1
     x=2,y=6;
-    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,25,7,RIGHT,ONE,ARCHER,2);
-    mapa->tiles[y-1][x-1]->hero = heroes[7];
+    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),32,y,50,10,25,7,RIGHT,ONE,ARCHER,4);
+    mapa->tiles[y-1][32-1]->hero = heroes[7];
     y+=4;
     heroes[8] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
