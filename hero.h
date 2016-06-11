@@ -228,9 +228,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team, int rangeAtk
         else{
             //weight to attack
             newWeight = tileCenter->weightAtk + 1;
-            //if in the tile had a friend
-            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
-                newWeight=WEIGHT_MAX;
             if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
                 //save the way for the tile and the new weight and color
                 tileAnalyze->weightAtk = newWeight;
@@ -266,9 +263,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team, int rangeAtk
         else{
             //weight to attack
             newWeight = tileCenter->weightAtk + 1;
-            //if in the tile had a friend
-            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
-                newWeight=WEIGHT_MAX;
             if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
                 //save the way for the tile and the new weight and color
                 tileAnalyze->weightAtk = newWeight;
@@ -303,9 +297,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team, int rangeAtk
         else{
             //weight to attack
             newWeight = tileCenter->weightAtk + 1;
-            //if in the tile had a friend
-            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
-                newWeight=WEIGHT_MAX;
             if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
                 //save the way for the tile and the new weight and color
                 tileAnalyze->weightAtk = newWeight;
@@ -340,9 +331,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team, int rangeAtk
         else{
             //weight to attack
             newWeight = tileCenter->weightAtk + 1;
-            //if in the tile had a friend
-            if((tileAnalyze->hero!=NULL)&&(tileAnalyze->hero->get_team()==team))
-                newWeight=WEIGHT_MAX;
             if((newWeight<tileAnalyze->weightAtk)&&(newWeight<=rangeAtk)){
                 //save the way for the tile and the new weight and color
                 tileAnalyze->weightAtk = newWeight;
