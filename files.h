@@ -27,6 +27,10 @@ const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/lightning1.png"},{"b
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/fire_arrow1.png"},{"bin/imgs/fire_arrow2.png"},{"bin/imgs/fire_arrow3.png"},{"bin/imgs/fire_arrow4.png"},{"bin/imgs/fire_arrow5.png"},{"bin/imgs/fire_arrow6.png"},{"bin/imgs/fire_arrow7.png"},{"bin/imgs/fire_arrow8.png"},{"bin/imgs/fire_arrow9.png"},{"bin/imgs/fire_arrow10.png"}};
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash1.png"},{"bin/imgs/slash2.png"},{"bin/imgs/slash3.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"}};
 const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash21.png"},{"bin/imgs/slash22.png"},{"bin/imgs/slash23.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"}};
+#define TARGET "bin/imgs/target.png"
+#define TARGET2 "bin/imgs/target2.png"
+#define MAPA "bin/imgs/map.png"
+#define CURSOR "bin/imgs/cursor.png"
 
 using namespace irrklang;
 // link with irrKlang.dll
@@ -103,6 +107,10 @@ class Animate{
     Image *imgSoldierAttackUp[IMGS_ANIMATE];
     Image *heroArcherRed;
     Image *heroArcherBlue;
+    Image *imgTarget;
+    Image *imgTarget2;
+    Image *imgMap;
+    Image *imgCursor;
 public:
     Animate(){
         //allocate all images
@@ -118,6 +126,10 @@ public:
         }
         heroArcherBlue = new Image(ARCHER_BLUE);
         heroArcherRed = new Image(ARCHER_RED);
+        imgTarget = new Image(TARGET);
+        imgTarget2 = new Image(TARGET2);
+        imgMap = new Image(MAPA);
+        imgCursor = new Image(CURSOR);
     }
     ~Animate(){
         //deallocate all images
@@ -133,6 +145,25 @@ public:
         }
         delete heroArcherRed;
         delete heroArcherBlue;
+        delete imgTarget;
+        delete imgTarget2;
+        delete imgMap;
+        delete imgCursor;
+    }
+    //return image
+    Image *get_image(string name){
+        if(!name.compare("map"))
+            return imgMap;
+        else if(!name.compare("cursor"))
+            return imgCursor;
+        else if(!name.compare("target"))
+            return imgTarget;
+        else if(!name.compare("target2"))
+            return imgTarget2;
+        else{
+            cout << "Failed to open \"" << name << "\" image\n";
+            return NULL;
+        }
     }
     //return the bitmap of Class and Team defined
     Image *get_image(Class _class, Team team){

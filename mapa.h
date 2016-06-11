@@ -66,11 +66,11 @@ public:
     }
 };
 
-class Map: public Image{
+class Map{
     const int columns, rows;
 public:
     Tile*** tiles;
-    Map(int _columns,int _rows,const char* directory):Image(directory), columns(_columns),rows(_rows){
+    Map(int _columns,int _rows): columns(_columns),rows(_rows){
         //allocate tiles
         tiles = new Tile**[rows];
         for(int i=0;i<rows;i++)

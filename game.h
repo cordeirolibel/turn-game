@@ -3,8 +3,6 @@
 #define MAX_HEROES 50
 
 //directories
-#define FUNDO "bin/imgs/map.png"
-#define CURSOR "bin/imgs/cursor.png"
 #define FONT_BIG "bin/Carnevalee Freakshow.ttf"
 #define SIZE_FONT_BIG 32
 #define FONT_MEDIUM "bin/pirulen.ttf"
@@ -60,6 +58,8 @@ public:
     void draw_heroes();
     //draw the grid of map
     void draw_rectangles();
+    //draw all targets
+    void draw_targets();
     //updates game when click in tile point
     void tile_click(Point point);
     //update the game for next turn
@@ -124,7 +124,7 @@ int Game::initialize(){
     font_big = new Font(FONT_BIG,SIZE_FONT_BIG);
     font_medium = new Font(FONT_MEDIUM,SIZE_FONT_MEDIUM);
     mouse = new Mouse(CURSOR);
-    mapa = new Map(COLUMNS_TILE,ROWS_TILE, FUNDO);
+    mapa = new Map(COLUMNS_TILE,ROWS_TILE);
     heroes = new Hero*[MAX_HEROES];
     menu = new Menu();
     //create the heroes
@@ -143,15 +143,17 @@ void Game::draw_update(){
     //clear the buffer of screen
     clear_screen();
     //print map
-    al_draw_bitmap(mapa->get_bitmap(),0,BAR_OPTIONS,0);
+    al_draw_bitmap(animate->get_image("map")->get_bitmap(),0,BAR_OPTIONS,0);
     //print menu bar
     menu->draw_menu(font_big);
     //print all rectangles
     draw_rectangles();
     //draw all heroes and informations
     draw_heroes();
+    //draw the targets
+    draw_targets();
     //print cursor
-    al_draw_bitmap(mouse->get_bitmap(), mouse->get_x(),mouse->get_y(),0);
+    al_draw_bitmap(animate->get_image("cursor")->get_bitmap(), mouse->get_x(),mouse->get_y(),0);
     //flip the screen
     update_screen();
 }
@@ -183,14 +185,20 @@ void Game::draw_heroes(){
 void Game::draw_rectangles(){
     //print all rectangles
     for(int i=0;i<mapa->get_rows();i++)
-        for(int j=0;j<mapa->get_columns();j++){
-            //draw the rectangle
+        for(int j=0;j<mapa->get_columns();j++)
             al_draw_rectangle(mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,mapa->tiles[i][j]->pixel->x+SIZE_TILE-1,mapa->tiles[i][j]->pixel->y+SIZE_TILE-1,mapa->tiles[i][j]->color(),1);
-            if((mapa->tiles[i][j]->weightAtk<WEIGHT_MAX)&&(mapa->tiles[i][j]->weightAtk!=0))
-                al_draw_circle(mapa->tiles[i][j]->pixel->x+SIZE_TILE/2,mapa->tiles[i][j]->pixel->y+SIZE_TILE/2,SIZE_TILE/2,YELLOW,1);
-        }
 }
-
+//draw the all targets
+void Game::draw_targets(){
+    for(int i=0;i<mapa->get_rows();i++)
+        for(int j=0;j<mapa->get_columns();j++)
+            if((mapa->tiles[i][j]->weightAtk<WEIGHT_MAX)&&(mapa->tiles[i][j]->weightAtk!=0)){
+                if(mapa->tiles[i][j]->hero==NULL)
+                    al_draw_bitmap(animate->get_image("target")->get_bitmap(),mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,0);
+                else if(mapa->tiles[i][j]->hero->get_team()!=turnTeam)
+                    al_draw_bitmap(animate->get_image("target2")->get_bitmap(),mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,0);
+            }
+}
 
 //updates mapa when click in tile point
 void Game::tile_click(Point point){
@@ -211,13 +219,15 @@ void Game::tile_click(Point point){
                 menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                 //the weight in start position is 0
                 mapa->tiles[point.y-1][point.x-1]->weight = 0;
-                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //find the space of walk for the hero
                 space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
                 //if the attack is long distance
-                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class())){
+                    //the weightAtk in start position is 0
+                    mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                     //range of attack
                     space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
+                }
                 //save the last click is a hero
                 heroFlag = true;
             }
@@ -233,13 +243,15 @@ void Game::tile_click(Point point){
                 menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                 //the weight in start position is 0
                 mapa->tiles[point.y-1][point.x-1]->weight = 0;
-                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //find the space of walk for the hero
                 space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
                 //if the attack is long distance
-                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class())){
+                    //the weightAtk in start position is 0
+                    mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                     //range of attack
                     space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
+                }
             }
             //in the last turn selected a hero and new selected hero in the different team
             else{
@@ -251,13 +263,15 @@ void Game::tile_click(Point point){
                 menu->set_hero(mapa->tiles[point.y-1][point.x-1]->hero);
                 //the weight in start position is 0
                 mapa->tiles[point.y-1][point.x-1]->weight = 0;
-                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //find the space of walk for the hero
                 space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
                 //if the attack is long distance
-                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+                if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class())){
+                    //the weightAtk in start position is 0
+                    mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                     //range of attack
                     space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
+                }
                 //save the last click is a hero
                 heroFlag = true;
             }
@@ -399,13 +413,15 @@ void Game::tile_click(Point point){
             mapa->tiles[point.y-1][point.x-1]->set_color(WHITE);
             //the weight in start position is 0
             mapa->tiles[point.y-1][point.x-1]->weight = 0;
-            mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
             //find the space of walk for the hero
             space_walk(mapa,point,mapa->tiles[point.y-1][point.x-1]->hero->get_speed(),mapa->tiles[point.y-1][point.x-1]->hero->get_team());
             //if the attack is long distance
-            if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class()))
+            if(type_attack(mapa->tiles[point.y-1][point.x-1]->hero->get_class())){
+                //the weightAtk in start position is 0
+                mapa->tiles[point.y-1][point.x-1]->weightAtk = 0;
                 //range of attack
                 space_walk(mapa,point,0.0,mapa->tiles[point.y-1][point.x-1]->hero->get_team(),mapa->tiles[point.y-1][point.x-1]->hero->get_range_atk());
+            }
         }
         //click out of the range of hero
         else {
