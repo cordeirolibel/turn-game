@@ -630,39 +630,39 @@ void Game::init_heroes(){
 
     //soldiers team 1
     int x=5,y=2;
-    heroes[0] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,25,7,RIGHT,ONE,SOLDIER);
+    heroes[0] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,25,15,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
     y+=4;
-    heroes[1] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[1] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,15,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
     y+=4;
-    heroes[2] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[2] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,15,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
     y+=4;
-    heroes[3] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[3] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,15,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
     y+=4;
-    heroes[4] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,7,RIGHT,ONE,SOLDIER);
+    heroes[4] = new Hero(animate->get_image(SOLDIER,ONE),x,y,50,10,30,15,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
     y+=4;
 
     //mages team 1
     x=2,y=2;
-    heroes[5] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,25,7,RIGHT,ONE,MAGE,3);
+    heroes[5] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,25,15,RIGHT,ONE,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     y+=16;
-    heroes[6] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,30,7,RIGHT,ONE,MAGE,3);
+    heroes[6] = new Hero(animate->get_image(MAGE,ONE),x,y,50,10,30,15,RIGHT,ONE,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
 
     //archers team 1
     x=2,y=6;
-    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),32,y,50,10,25,7,RIGHT,ONE,ARCHER,4);
-    mapa->tiles[y-1][32-1]->hero = heroes[7];
+    heroes[7] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,25,15,RIGHT,ONE,ARCHER,2);
+    mapa->tiles[y-1][x-1]->hero = heroes[7];
     y+=4;
-    heroes[8] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER,2);
+    heroes[8] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,15,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     y+=4;
-    heroes[9] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,7,RIGHT,ONE,ARCHER,2);
+    heroes[9] = new Hero(animate->get_image(ARCHER,ONE),x,y,50,10,30,15,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
 
 
@@ -672,38 +672,38 @@ void Game::init_heroes(){
 
     //soldiers team 2
     x=35,y=2;
-    heroes[10] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,25,7,LEFT,TWO,SOLDIER);
+    heroes[10] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,25,15,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[10];
     y+=4;
-    heroes[11] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[11] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,15,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[11];
     y+=4;
-    heroes[12] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[12] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,15,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[12];
     y+=4;
-    heroes[13] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[13] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,15,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[13];
     y+=4;
-    heroes[14] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,7,LEFT,TWO,SOLDIER);
+    heroes[14] = new Hero(animate->get_image(SOLDIER,TWO),x,y,50,10,30,15,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[14];
     y+=4;
 
     //mages team 2
     x=38,y=2;
-    heroes[15] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,25,7,LEFT,TWO,MAGE,3);
+    heroes[15] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,25,15,LEFT,TWO,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[15];
     y+=16;
-    heroes[16] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,30,7,LEFT,TWO,MAGE,3);
+    heroes[16] = new Hero(animate->get_image(MAGE,TWO),x,y,50,10,30,15,LEFT,TWO,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[16];
 
     //archers team 2
     x=38,y=6;
-    heroes[17] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,25,7,LEFT,TWO,ARCHER,2);
+    heroes[17] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,25,15,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[17];
     y+=4;
-    heroes[18] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER,2);
+    heroes[18] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,15,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[18];
     y+=4;
-    heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,7,LEFT,TWO,ARCHER,2);
+    heroes[19] = new Hero(animate->get_image(ARCHER,TWO),x,y,50,10,30,15,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[19];
 }

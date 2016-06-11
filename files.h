@@ -166,7 +166,7 @@ public:
         //if class is a Archer, simulate launching projectile
         //https://en.wikipedia.org/wiki/Trajectory_of_a_projectile
         else if(_class==ARCHER){
-            int h;
+            int h, dy;
             //distance of enemies
             int d = defender->x - attack->x;
             //set positionX of image
@@ -184,21 +184,31 @@ public:
             //arrow is down and attacker in top of defender
             else
                 h=defender->y-attack->y+SIZE_TILE;
-            //calculate speed initial in launching projectile
-            float sin0 = (float)h/sqrt((d/4)*(d/4)+h*h);
-            float cos0 = (float)d/(4*sqrt((d/4)*(d/4)+h*h));
-            float tan0 = (float)h*4/d;
-            float speed0=(float)sqrt(9.8*d/(2*sin0*cos0));
-            int dy=(int)(dx*tan0-9.8*(dx/(speed0*cos0))*(dx/(speed0*cos0))/2);
+            //launching projectile
+            if(d!=0){
+                //calculate speed initial in launching projectile
+                float sin0 = (float)h/sqrt((d/4)*(d/4)+h*h);
+                float cos0 = (float)d/(4*sqrt((d/4)*(d/4)+h*h));
+                float tan0 = (float)h*4/d;
+                float speed0=(float)sqrt(9.8*d/(2*sin0*cos0));
+                dy=(int)(dx*tan0-9.8*(dx/(speed0*cos0))*(dx/(speed0*cos0))/2);
+                //set side of arrow
+                if(attack->x < defender->x)
+                    imgArcherAttack[frame]->side = RIGHT;
+                else
+                    imgArcherAttack[frame]->side = LEFT;
+            }
+            //vertical launch
+            else{
+                float speed0 = sqrt(2*h*9.8);
+                float t = speed0*frame*2/(9.8*(IMGS_ANIMATE-1));
+                dy=(int)(speed0*t-9.8*t*t/2);
+            }
+            //set positionY of image
             if(frame<(IMGS_ANIMATE/2))
                 imgPosition->y = attack->y-dy;
             else
                 imgPosition->y = defender->y-dy;
-            //set side of arrow
-            if(attack->x < defender->x)
-                imgArcherAttack[frame]->side = RIGHT;
-            else
-                imgArcherAttack[frame]->side = LEFT;
             //return image of animation
             return (imgArcherAttack[frame]);
         }
