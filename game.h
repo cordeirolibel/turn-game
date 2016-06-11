@@ -42,6 +42,7 @@ public:
         delete animate;
         delete sounds;
         delete lastTileSelected;
+        delete attackDrawPixel;
         //deallocate heroes
         int n_heroes = Hero::get_num_of_heroes();
         for(int i=0;i<n_heroes;i++)
@@ -84,7 +85,9 @@ public:
             heroes[i]->cont_move();
     }
     //delete hero of heroes
-    void delete_hero();
+    int delete_hero();
+    //check if game is finish
+    bool finish();
     //move the mouse position
     void move_mouse(int x, int y){
         mouse->moves(x,y);
@@ -626,18 +629,51 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
         nextTile->moveHero->set_side(LEFT);
 }
 
-//delete hero dead of heroes
-void Game::delete_hero(){
-    int i=0;
+//delete hero dead of heroes, return 0 if do not have team with all heroes is dead
+int Game::delete_hero(){
+    int i=0, teams[2];
+    teams[0]=0;
+    teams[1]=0;
     //find which hero is dead
     for(i=0;i<Hero::get_num_of_heroes();i++)
         //hero is dead
-        if(heroes[i]->get_hp()<=0)
+        if(heroes[i]->get_hp()<=0){
+            delete heroes[i];
             break;
-    delete heroes[i];
+        }
     //reallocating vector
     for(;i<Hero::get_num_of_heroes();i++)
         heroes[i]=heroes[i+1];
+    //cont how many heroes exist in each team
+    for(i=0;i<Hero::get_num_of_heroes();i++)
+        teams[heroes[i]->get_team()-1]++;
+    //all heroes in team 1 is dead
+    if(teams[0]==0)
+        return 1;
+    //all heroes in team 2 is dead
+    else if(teams[1]==0)
+        return 2;
+    else
+        return 0;
+}
+//check if game is finish
+bool Game::finish(){
+    int teamLose = delete_hero();
+    //game is not finish
+    if(teamLose==0)
+        return false;
+    //draw update screen
+    menu->set_hero(NULL);
+    draw_update();
+    //draw victory image
+    al_draw_bitmap(animate->get_image("victory")->get_bitmap(),400,150,0);
+    //flip the screen
+    update_screen();
+    //sound of victory
+    sounds->play("victory");
+    //sleep 5sec
+    Sleep(5000);
+    return true;
 }
 //initialize the all heroes
 void Game::init_heroes(){

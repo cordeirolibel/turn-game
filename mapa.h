@@ -12,7 +12,7 @@ enum Class{
     MAGE, SOLDIER, ARCHER
 };
 enum Team{
-    ONE,TWO
+    ONE=1,TWO
 };
 //Find the position of rectangle, pixel to map point
 Point find_rec(Pixel_Point* pixel){

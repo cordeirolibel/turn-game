@@ -34,6 +34,8 @@ int main(int argc, char **argv){
                 //find the tile click
                 Point point = find_rec(&pixel);
                 game->tile_click(point);
+                if(game->finish())
+                    break;
             }
             //in menu, not map
             else{

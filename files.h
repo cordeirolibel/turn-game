@@ -3,7 +3,8 @@
 #define DAMAGE_FRAMES_DRAW 2
 
 //files sound
-#define BUTTON_CLICK "bin/sounds/button.wav"
+#define BUTTON_CLICK "bin/sounds/button.ogg"
+#define WIN "bin/sounds/victory.ogg"
 #define FIRE_BOW "bin/sounds/bow-puny-fire.ogg"
 #define FIRE_BOW_MISS "bin/sounds/bow-puny-fire-miss.ogg"
 #define LIGHTNING "bin/sounds/lightning.ogg"
@@ -11,10 +12,10 @@
 #define SLASH "bin/sounds/axe.ogg"
 #define SLASH_MISS "bin/sounds/miss-3.ogg"
 #define DIRT "bin/sounds/footstep-dirt-05.ogg"
-#define DIRT2 "bin/sounds/footstep-dirt-08.wav"
-#define WATER "bin/sounds/footstep-water-05.wav"
-#define GRASS "bin/sounds/grass1.wav"
-#define SNOW "bin/sounds/footstep-carpet.wav"
+#define DIRT2 "bin/sounds/footstep-dirt-08.ogg"
+#define WATER "bin/sounds/footstep-water-05.ogg"
+#define GRASS "bin/sounds/grass1.ogg"
+#define SNOW "bin/sounds/footstep-carpet.ogg"
 
 //files images
 #define ARCHER_BLUE "bin/imgs/archer_blue.png"
@@ -31,6 +32,7 @@ const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash21.png"},
 #define TARGET2 "bin/imgs/target2.png"
 #define MAPA "bin/imgs/map.png"
 #define CURSOR "bin/imgs/cursor.png"
+#define VICTORY "bin/imgs/victory.png"
 
 using namespace irrklang;
 // link with irrKlang.dll
@@ -58,6 +60,8 @@ public:
     void play(string name){
         if(!name.compare("button"))
             engine->play2D(BUTTON_CLICK);
+        else if(!name.compare("walk dirt"))
+            engine->play2D(DIRT);
         else if(!name.compare("fire bow"))
             engine->play2D(FIRE_BOW);
         else if(!name.compare("fire bow miss"))
@@ -70,8 +74,8 @@ public:
             engine->play2D(SLASH);
         else if(!name.compare("slash miss"))
             engine->play2D(SLASH_MISS);
-        else if(!name.compare("walk dirt"))
-            engine->play2D(DIRT);
+        else if(!name.compare("victory"))
+            engine->play2D(WIN);
         else
             cout << "Failed to play \"" << name << "\" sound\n";
     }
@@ -111,6 +115,7 @@ class Animate{
     Image *imgTarget2;
     Image *imgMap;
     Image *imgCursor;
+    Image *imgvictory;
 public:
     Animate(){
         //allocate all images
@@ -130,6 +135,7 @@ public:
         imgTarget2 = new Image(TARGET2);
         imgMap = new Image(MAPA);
         imgCursor = new Image(CURSOR);
+        imgvictory = new Image(VICTORY);
     }
     ~Animate(){
         //deallocate all images
@@ -149,6 +155,7 @@ public:
         delete imgTarget2;
         delete imgMap;
         delete imgCursor;
+        delete imgvictory;
     }
     //return image
     Image *get_image(string name){
@@ -160,6 +167,8 @@ public:
             return imgTarget;
         else if(!name.compare("target2"))
             return imgTarget2;
+        else if(!name.compare("victory"))
+            return imgvictory;
         else{
             cout << "Failed to open \"" << name << "\" image\n";
             return NULL;
