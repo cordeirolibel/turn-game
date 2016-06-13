@@ -171,7 +171,7 @@ void Game::draw_heroes(){
     int damage;
     //draw all heroes
     for(int i=0;i<Hero::get_num_of_heroes(); i++)
-        heroes[i]->draw_hero();
+        heroes[i]->draw_hero(mapa);
     //draw attack of heroes
     if(attackDraw!=NULL)
         al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
@@ -194,12 +194,9 @@ void Game::draw_heroes(){
 void Game::draw_rectangles(){
     //print all rectangles
     for(int i=0;i<mapa->get_rows();i++)
-        for(int j=0;j<mapa->get_columns();j++){
-            char text[MAX_TEXT];
-            sprintf(text,"%.1f",mapa->tiles[i][j]->mobility);
-            al_draw_text(font_short->get_font(), BLACK, mapa->tiles[i][j]->pixel->x, mapa->tiles[i][j]->pixel->y,ALLEGRO_ALIGN_LEFT, text);
+        for(int j=0;j<mapa->get_columns();j++)
             al_draw_rectangle(mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,mapa->tiles[i][j]->pixel->x+SIZE_TILE-1,mapa->tiles[i][j]->pixel->y+SIZE_TILE-1,mapa->tiles[i][j]->color(),1);
-}}
+}
 //draw the all targets
 void Game::draw_targets(){
     for(int i=0;i<mapa->get_rows();i++)

@@ -17,6 +17,9 @@ bool type_attack(Class _class){
         return true;
     return false;
 }
+
+bool you_can_walk(Point* point, Map* mapa, float speed);
+
 class Hero{
     const float initSpeed;
     float speed;
@@ -62,7 +65,7 @@ public:
         attack_flag = flag;
     }
     //draw hero in your position
-    void draw_hero(){
+    void draw_hero(Map *mapa){
         Pixel_Point pixel = find_rec(point);
         //draw here he look
         if(side==RIGHT)
@@ -79,7 +82,7 @@ public:
         ALLEGRO_COLOR color;
         if(speed==initSpeed)
             color=GREEN;
-        else if(speed>0)
+        else if(you_can_walk(point,mapa,speed))
             color=YELLOW;
         else if(attack_flag==false)
             color=GREY;
@@ -191,11 +194,37 @@ public:
         return numOfHeroes;
     }
 };
+
 //initialize static number
 int Hero::numOfHeroes = 0;
 //return the pixel point of the Hero
 Pixel_Point Map::get_hero_pixel_point(Hero* hero){
     return (find_rec(hero->point));
+}
+//return true if you can walk
+bool you_can_walk(Point* point, Map* mapa, float speed){
+    float weightMin = WEIGHT_MAX;
+    //tile in Left, if not limit
+    if(point->x-1>0){
+        if(mapa->tiles[point->y-1][point->x-2]->mobility < weightMin)
+            weightMin=mapa->tiles[point->y-1][point->x-2]->mobility;
+    }
+    //tile in Right, if not limit
+    if(point->x<COLUMNS_TILE){
+        if(mapa->tiles[point->y-1][point->x]->mobility < weightMin)
+            weightMin=mapa->tiles[point->y-1][point->x]->mobility;
+    }
+    //tile in Up, if not limit
+    if(point->y-1>0){
+        if(mapa->tiles[point->y-2][point->x-1]->mobility < weightMin)
+            weightMin=mapa->tiles[point->y-2][point->x-1]->mobility;
+    }
+    //tile in Down, if not limit
+    if(point->y<ROWS_TILE){
+        if(mapa->tiles[point->y][point->x-1]->mobility < weightMin)
+            weightMin=mapa->tiles[point->y][point->x-1]->mobility;
+    }
+    return (speed>=weightMin);
 }
 //Find the walk space in mapa, stating in point and finish when WEIGHT_MAX it is reached
 //Use the recursion and based on algorithm dijkstra
@@ -239,7 +268,6 @@ void space_walk(Map *mapa,Point point, float weight_max, Team team, int rangeAtk
     }
     //tile in Right, if not limit
     if(point.x<COLUMNS_TILE){
-
         tileAnalyze = mapa->tiles[point.y-1][point.x];
         //if is not range to long attack
         if(rangeAtk==0){
