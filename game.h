@@ -607,9 +607,9 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
         return;
     }
     //set the time of move and wait
-    actualTile->moveHero->set_move();
+    actualTile->moveHero->set_move(nextTile->pixel);
     ALLEGRO_EVENT event;
-    sounds->play("walk dirt");//========================================VER MELHOR
+    sounds->play(nextTile->terrain);
     //wait the time of move
     while(!actualTile->moveHero->is_ready_to_move()){
         event = wait_event();
@@ -627,7 +627,7 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     actualTile->moveHero->moves(find_rec(nextTile->pixel));
     nextTile->moveHero = actualTile->moveHero;
     actualTile->moveHero = NULL;
-    nextTile->moveHero->walk(actualTile->mobility);
+    nextTile->moveHero->walk(nextTile->mobility);
     //change the side of hero
     if(actualTile->pixel->x < nextTile->pixel->x)
         nextTile->moveHero->set_side(RIGHT);

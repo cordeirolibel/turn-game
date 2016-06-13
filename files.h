@@ -11,11 +11,10 @@
 #define LIGHTNING_MISS "bin/sounds/lightning-miss.ogg"
 #define SLASH "bin/sounds/axe.ogg"
 #define SLASH_MISS "bin/sounds/miss-3.ogg"
-#define DIRT_SOUND "bin/sounds/footstep-dirt-05.ogg"
-#define DIRT2_SOUND "bin/sounds/footstep-dirt-08.ogg"
+#define DIRT_SOUND "bin/sounds/footstep-dirt-08.ogg"
 #define WATER_SOUND "bin/sounds/footstep-water-05.ogg"
-#define GRASS_SOUND "bin/sounds/grass1.ogg"
-#define SNOW_SOUND "bin/sounds/footstep-carpet.ogg"
+#define GRASS_SOUND "bin/sounds/footstep-dirt-05.ogg"
+#define BRIDGE_SOUND "bin/sounds/footstep-wood.ogg"
 
 //files images
 #define ARCHER_BLUE "bin/imgs/archer_blue.png"
@@ -65,6 +64,12 @@ public:
             engine->play2D(BUTTON_CLICK);
         else if(!name.compare("walk dirt"))
             engine->play2D(DIRT_SOUND);
+        else if(!name.compare("walk grass"))
+            engine->play2D(GRASS_SOUND);
+        else if(!name.compare("walk water"))
+            engine->play2D(WATER_SOUND);
+        else if(!name.compare("walk bridge"))
+            engine->play2D(BRIDGE_SOUND);
         else if(!name.compare("fire bow"))
             engine->play2D(FIRE_BOW);
         else if(!name.compare("fire bow miss"))
@@ -100,6 +105,17 @@ public:
             else if (_class==SOLDIER)
                 play("slash miss");
         }
+    }
+    //play specific sound of class defined by terrain
+    void play(Terrain terrain){
+        if((terrain == DIRT)||(terrain == HOUSE))
+            play("walk dirt");
+        else if(terrain == GRASS)
+            play("walk grass");
+        else if(terrain == WATER)
+            play("walk water");
+        else if(terrain == BRIDGE)
+            play("walk bridge");
     }
 };
 

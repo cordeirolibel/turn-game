@@ -1,4 +1,4 @@
-#define MOVE_TIME_HERO 5//in frames
+#define MOVE_TIME_HERO 7//in frames
 #define ATTACK_TIME 6//in frames
 
 #define HP_MAX 50
@@ -34,6 +34,7 @@ class Hero{
     int hp;
     int moveTime;
     Point *point;
+    Pixel_Point *nextPixel;
     Image* image;
     int damageDraw;//-1 if not print
     bool attack_flag;
@@ -47,6 +48,7 @@ public:
         damageDraw = -1;
         attack_flag = true;
         speed = initSpeed;
+        nextPixel = NULL;
         //some the new hero class
         numOfHeroes++;
     }
@@ -67,17 +69,31 @@ public:
     //draw hero in your position
     void draw_hero(Map *mapa){
         Pixel_Point pixel = find_rec(point);
+        int dx=0,dy=0, delta;
+        //if hero is moving
+        if(nextPixel!=NULL){
+            delta = mapping((MOVE_TIME_HERO-moveTime),0,MOVE_TIME_HERO,0,SIZE_TILE);
+            //calculate the increase between each tile
+            if(nextPixel->x > pixel.x)//next in the right
+                dx=delta;
+            else if(nextPixel->x < pixel.x)//next in the left
+                dx=-delta;
+            if(nextPixel->y > pixel.y)//next in the down
+                dy=delta;
+            else if(nextPixel->y < pixel.y)//next in the up
+                dy=-delta;
+        }
         //draw here he look
         if(side==RIGHT)
-            al_draw_bitmap(image->get_bitmap(),pixel.x-1,pixel.y-1,0);
+            al_draw_bitmap(image->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
         else
-            al_draw_bitmap(image->get_bitmap(),pixel.x-1,pixel.y-1,1);
+            al_draw_bitmap(image->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,1);
         //draw hp live
         int fit = mapping(hp,0,HP_MAX,0,HP_MAX_BAR_DRAW);
         if(side==RIGHT)
-            al_draw_rectangle(pixel.x+2,pixel.y+2,pixel.x+3,pixel.y+fit+2,RED,1);
+            al_draw_rectangle(pixel.x+2+dx,pixel.y+2+dy,pixel.x+3+dx,pixel.y+fit+2+dy,RED,1);
         else
-            al_draw_rectangle(pixel.x-3+SIZE_TILE,pixel.y+1,pixel.x-4+SIZE_TILE,pixel.y+fit+2,RED,1);
+            al_draw_rectangle(pixel.x-3+SIZE_TILE+dx,pixel.y+1+dy,pixel.x-4+SIZE_TILE+dx,pixel.y+fit+2+dy,RED,1);
         //draw in different if is possible to move
         ALLEGRO_COLOR color;
         if(speed==initSpeed)
@@ -91,9 +107,9 @@ public:
         //draw the circle
         if(initSpeed!=0){
             if(side==RIGHT)
-                al_draw_filled_circle(pixel.x+SIZE_TILE-4, pixel.y+2, RADIUS_MOVE_DRAW,color);
+                al_draw_filled_circle(pixel.x+SIZE_TILE-4+dx, pixel.y+2+dy, RADIUS_MOVE_DRAW,color);
             else
-                al_draw_filled_circle(pixel.x+2, pixel.y+2, RADIUS_MOVE_DRAW,color);
+                al_draw_filled_circle(pixel.x+2+dx, pixel.y+2+dy, RADIUS_MOVE_DRAW,color);
         }
     }
     ALLEGRO_BITMAP* get_bitmap(){
@@ -157,12 +173,17 @@ public:
             hp=initHp;
     }
     //start the count for the next move
-    void set_move(){
+    void set_move(Pixel_Point* pixel){
         moveTime = MOVE_TIME_HERO;
+        nextPixel = pixel;
     }
     //if the hero is ready to move (animate)
     bool is_ready_to_move(){
-        return (moveTime==0);
+        if(moveTime==0){
+            nextPixel=NULL;
+            return true;
+        }
+        return false;
     }
     //new count for the next move
     void cont_move(){
