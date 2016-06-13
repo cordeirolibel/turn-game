@@ -5,8 +5,8 @@
 
 #define WATER_MOBILITY 5
 #define GRASS_MOBILITY 1
-#define DIRT_MOBILITY 3
-#define BRIDGE_MOBILITY 5
+#define DIRT_MOBILITY 2
+#define BRIDGE_MOBILITY 1.5
 
 #define WEIGHT_MAX 8000
 #define MAX_TEXT 50
@@ -73,7 +73,6 @@ public:
         hero = NULL;
         moveHero = NULL;
         lastTile = NULL;
-        mobility = 0.3;//============================================================VER MELHOR
         weight = WEIGHT_MAX;
         weightAtk=WEIGHT_MAX;
         //set the color and the Left up position
@@ -113,32 +112,25 @@ public:
     int get_rows(){
         return rows;
     }
-    void set_mobility()
-    {
-        for(int i=0;i<rows;i++)
-        {
-            for(int j=0;j<columns;j++)
-            {
-                if(map_matrix[i*j + i] == 0)
-                {
+    void set_mobility(){
+        for(int i=0;i<rows;i++){
+            for(int j=0;j<columns;j++){
+                if(map_matrix[i*columns+j] == 0){
                     //grass tile
                     tiles[i][j]->mobility = GRASS_MOBILITY;
                     tiles[i][j]->terrain = GRASS;
                 }
-                if(map_matrix[i*j + i] == 1)
-                {
+                if(map_matrix[i*columns+j] == 1){
                     //grass tile
                     tiles[i][j]->mobility = DIRT_MOBILITY;
                     tiles[i][j]->terrain = DIRT;
                 }
-                if(map_matrix[i*j + i] == 2)
-                {
+                if(map_matrix[i*columns+j] == 2){
                     //grass tile
                     tiles[i][j]->mobility = WATER_MOBILITY;
                     tiles[i][j]->terrain = WATER;
                 }
-                if(map_matrix[i*j + i] == 3)
-                {
+                if(map_matrix[i*columns+j] == 3){
                     //grass tile
                     tiles[i][j]->mobility = BRIDGE_MOBILITY;
                     tiles[i][j]->terrain = BRIGDE;

@@ -24,8 +24,8 @@
 #define MAGE_BLUE "bin/imgs/mage_blue.png"
 #define SOLDIER_BLUE "bin/imgs/soldier_blue.png"
 #define SOLDIER_RED "bin/imgs/soldier_red.png"
-#define TOWER_BLUE "bin/imgs/potato.png"
-#define TOWER_RED "bin/imgs/potato.png"
+#define TOWER_BLUE "bin/imgs/tower_blue.png"
+#define TOWER_RED "bin/imgs/tower_red.png"
 const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/lightning1.png"},{"bin/imgs/lightning2.png"},{"bin/imgs/lightning3.png"},{"bin/imgs/lightning4.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/fire_arrow1.png"},{"bin/imgs/fire_arrow2.png"},{"bin/imgs/fire_arrow3.png"},{"bin/imgs/fire_arrow4.png"},{"bin/imgs/fire_arrow5.png"},{"bin/imgs/fire_arrow6.png"},{"bin/imgs/fire_arrow7.png"},{"bin/imgs/fire_arrow8.png"},{"bin/imgs/fire_arrow9.png"},{"bin/imgs/fire_arrow10.png"}};
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash1.png"},{"bin/imgs/slash2.png"},{"bin/imgs/slash3.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"}};
@@ -33,6 +33,7 @@ const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash21.png"},
 #define TARGET "bin/imgs/target.png"
 #define TARGET2 "bin/imgs/target2.png"
 #define MAPA "bin/imgs/map.png"
+#define MAPA_FRONT "bin/imgs/map_front.png"
 #define CURSOR "bin/imgs/cursor.png"
 #define VICTORY "bin/imgs/victory.png"
 
@@ -118,6 +119,7 @@ class Animate{
     Image *imgTarget;
     Image *imgTarget2;
     Image *imgMap;
+    Image *imgMapFront;
     Image *imgCursor;
     Image *imgvictory;
 public:
@@ -140,6 +142,7 @@ public:
         imgTarget = new Image(TARGET);
         imgTarget2 = new Image(TARGET2);
         imgMap = new Image(MAPA);
+        imgMapFront = new Image(MAPA_FRONT);
         imgCursor = new Image(CURSOR);
         imgvictory = new Image(VICTORY);
     }
@@ -162,6 +165,7 @@ public:
         delete imgTarget;
         delete imgTarget2;
         delete imgMap;
+        delete imgMapFront;
         delete imgCursor;
         delete imgvictory;
     }
@@ -169,6 +173,8 @@ public:
     Image *get_image(string name){
         if(!name.compare("map"))
             return imgMap;
+        else if(!name.compare("map front"))
+            return imgMapFront;
         else if(!name.compare("cursor"))
             return imgCursor;
         else if(!name.compare("target"))

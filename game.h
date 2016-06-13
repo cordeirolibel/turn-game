@@ -7,7 +7,8 @@
 #define SIZE_FONT_BIG 32
 #define FONT_MEDIUM "bin/pirulen.ttf"
 #define SIZE_FONT_MEDIUM 16
-
+#define FONT_SHORT "bin/pirulen.ttf"
+#define SIZE_FONT_SHORT 6
 class Menu;
 
 //converting the value in range fromLow-fromHigh to range toLow-toHigh proportionally
@@ -18,6 +19,7 @@ int mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh){
 class Game:public Screen{
     Font *font_big;
     Font *font_medium;
+    Font *font_short;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
@@ -126,8 +128,10 @@ int Game::initialize(){
     //open the files
     font_big = new Font(FONT_BIG,SIZE_FONT_BIG);
     font_medium = new Font(FONT_MEDIUM,SIZE_FONT_MEDIUM);
+    font_short = new Font(FONT_SHORT,SIZE_FONT_SHORT);
     mouse = new Mouse(CURSOR);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE);
+    mapa->set_mobility();
     heroes = new Hero*[MAX_HEROES];
     menu = new Menu();
     //create the heroes
@@ -149,10 +153,12 @@ void Game::draw_update(){
     al_draw_bitmap(animate->get_image("map")->get_bitmap(),0,BAR_OPTIONS,0);
     //print menu bar
     menu->draw_menu(font_big);
-    //print all rectangles
-    draw_rectangles();
     //draw all heroes and informations
     draw_heroes();
+    //print map front
+    al_draw_bitmap(animate->get_image("map front")->get_bitmap(),0,BAR_OPTIONS,0);
+    //print all rectangles
+    draw_rectangles();
     //draw the targets
     draw_targets();
     //print cursor
@@ -188,9 +194,12 @@ void Game::draw_heroes(){
 void Game::draw_rectangles(){
     //print all rectangles
     for(int i=0;i<mapa->get_rows();i++)
-        for(int j=0;j<mapa->get_columns();j++)
+        for(int j=0;j<mapa->get_columns();j++){
+            char text[MAX_TEXT];
+            sprintf(text,"%.1f",mapa->tiles[i][j]->mobility);
+            al_draw_text(font_short->get_font(), BLACK, mapa->tiles[i][j]->pixel->x, mapa->tiles[i][j]->pixel->y,ALLEGRO_ALIGN_LEFT, text);
             al_draw_rectangle(mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,mapa->tiles[i][j]->pixel->x+SIZE_TILE-1,mapa->tiles[i][j]->pixel->y+SIZE_TILE-1,mapa->tiles[i][j]->color(),1);
-}
+}}
 //draw the all targets
 void Game::draw_targets(){
     for(int i=0;i<mapa->get_rows();i++)
