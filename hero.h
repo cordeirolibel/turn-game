@@ -171,7 +171,7 @@ public:
         *point = _point;
     }
     //degrees speed
-    void walk(int value){
+    void walk(float value){
         speed -= value;
         if(speed<0)
             speed=0;

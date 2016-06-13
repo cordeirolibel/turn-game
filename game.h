@@ -630,7 +630,7 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
     actualTile->moveHero->moves(find_rec(nextTile->pixel));
     nextTile->moveHero = actualTile->moveHero;
     actualTile->moveHero = NULL;
-    nextTile->moveHero->walk(1);
+    nextTile->moveHero->walk(actualTile->mobility);
     //change the side of hero
     if(actualTile->pixel->x < nextTile->pixel->x)
         nextTile->moveHero->set_side(RIGHT);
