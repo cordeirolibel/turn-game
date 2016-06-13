@@ -3,9 +3,33 @@
 #define ROWS_TILE 20//in tiles
 #define COLUMNS_TILE 40//in tiles
 
+#define WATER_MOBILITY 5
+#define GRASS_MOBILITY 1
+#define DIRT_MOBILITY 3
+#define BRIDGE_MOBILITY 5
+
 #define WEIGHT_MAX 8000
 #define MAX_TEXT 50
-
+int map_matrix[20*40] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,1,1,1,1,1,1,1,1,
+2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,1,1,1,
+2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,1,1,
+2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,1,
+2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,
+1,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,
+1,1,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,1,1,
+1,1,1,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,1,
+1,1,1,1,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,1,
+1,1,1,1,1,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,
+1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,
+1,1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,
+1,1,1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,
+1,1,1,1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 //defined in hero.h
 class Hero;
 enum Class{
@@ -13,6 +37,9 @@ enum Class{
 };
 enum Team{
     ONE=1,TWO
+};
+enum Terrain{
+    GRASS,DIRT,WATER,BRIGDE
 };
 //Find the position of rectangle, pixel to map point
 Point find_rec(Pixel_Point* pixel){
@@ -30,16 +57,16 @@ Pixel_Point find_rec(Point* point){
 }
 
 class Tile{
-    int type;
     ALLEGRO_COLOR colorRec;
-    float mobility;
 public:
+    float mobility;
     float weight;
     float weightAtk;
     Tile* lastTile;
     Hero* hero;
     Hero* moveHero;
     Pixel_Point* pixel;
+    Terrain terrain;
     Tile(int _x, int _y){
         //set the variables
         pixel = new Pixel_Point(_x,_y);//left up position, in pixels
@@ -85,6 +112,39 @@ public:
     }
     int get_rows(){
         return rows;
+    }
+    void set_mobility()
+    {
+        for(int i=0;i<rows;i++)
+        {
+            for(int j=0;j<columns;j++)
+            {
+                if(map_matrix[i*j + i] == 0)
+                {
+                    //grass tile
+                    tiles[i][j]->mobility = GRASS_MOBILITY;
+                    tiles[i][j]->terrain = GRASS;
+                }
+                if(map_matrix[i*j + i] == 1)
+                {
+                    //grass tile
+                    tiles[i][j]->mobility = DIRT_MOBILITY;
+                    tiles[i][j]->terrain = DIRT;
+                }
+                if(map_matrix[i*j + i] == 2)
+                {
+                    //grass tile
+                    tiles[i][j]->mobility = WATER_MOBILITY;
+                    tiles[i][j]->terrain = WATER;
+                }
+                if(map_matrix[i*j + i] == 3)
+                {
+                    //grass tile
+                    tiles[i][j]->mobility = BRIDGE_MOBILITY;
+                    tiles[i][j]->terrain = BRIGDE;
+                }
+            }
+        }
     }
     ~Map(){
         //deallocate tiles

@@ -11,11 +11,11 @@
 #define LIGHTNING_MISS "bin/sounds/lightning-miss.ogg"
 #define SLASH "bin/sounds/axe.ogg"
 #define SLASH_MISS "bin/sounds/miss-3.ogg"
-#define DIRT "bin/sounds/footstep-dirt-05.ogg"
-#define DIRT2 "bin/sounds/footstep-dirt-08.ogg"
-#define WATER "bin/sounds/footstep-water-05.ogg"
-#define GRASS "bin/sounds/grass1.ogg"
-#define SNOW "bin/sounds/footstep-carpet.ogg"
+#define DIRT_SOUND "bin/sounds/footstep-dirt-05.ogg"
+#define DIRT2_SOUND "bin/sounds/footstep-dirt-08.ogg"
+#define WATER_SOUND "bin/sounds/footstep-water-05.ogg"
+#define GRASS_SOUND "bin/sounds/grass1.ogg"
+#define SNOW_SOUND "bin/sounds/footstep-carpet.ogg"
 
 //files images
 #define ARCHER_BLUE "bin/imgs/archer_blue.png"
@@ -63,7 +63,7 @@ public:
         if(!name.compare("button"))
             engine->play2D(BUTTON_CLICK);
         else if(!name.compare("walk dirt"))
-            engine->play2D(DIRT);
+            engine->play2D(DIRT_SOUND);
         else if(!name.compare("fire bow"))
             engine->play2D(FIRE_BOW);
         else if(!name.compare("fire bow miss"))
