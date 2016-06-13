@@ -9,7 +9,7 @@
 //defined in hero.h
 class Hero;
 enum Class{
-    MAGE, SOLDIER, ARCHER
+    MAGE, SOLDIER, ARCHER, TOWER
 };
 enum Team{
     ONE=1,TWO
@@ -46,7 +46,7 @@ public:
         hero = NULL;
         moveHero = NULL;
         lastTile = NULL;
-        mobility = 1;//============================================================VER MELHOR
+        mobility = 0.3;//============================================================VER MELHOR
         weight = WEIGHT_MAX;
         weightAtk=WEIGHT_MAX;
         //set the color and the Left up position

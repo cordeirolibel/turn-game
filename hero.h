@@ -2,7 +2,7 @@
 #define ATTACK_TIME 6//in frames
 
 #define HP_MAX 50
-#define HP_MAX_BAR_DRAW 12
+#define HP_MAX_BAR_DRAW 13
 #define RADIUS_MOVE_DRAW 2
 //defined in screen.h
 class Point;
@@ -18,8 +18,8 @@ bool type_attack(Class _class){
     return false;
 }
 class Hero{
-    const int initSpeed;
-    int speed;
+    const float initSpeed;
+    float speed;
     const Team team;
     const int initHp;
     const int atk;
@@ -35,7 +35,7 @@ class Hero{
     int damageDraw;//-1 if not print
     bool attack_flag;
 public:
-    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, int _speed, Side initSide, Team _team, Class class__,int _rangeAtk=0):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__),rangeAtk(_rangeAtk){
+    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, float _speed, Side initSide, Team _team, Class class__,int _rangeAtk=0):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__),rangeAtk(_rangeAtk){
         hp = initHp;
         side = initSide;
         image = _image;
@@ -86,12 +86,12 @@ public:
         else
             color=BLACK;
         //draw the circle
-        if(side==RIGHT)
-            al_draw_filled_circle(pixel.x+SIZE_TILE-4, pixel.y+2, RADIUS_MOVE_DRAW,color);
-        else
-            al_draw_filled_circle(pixel.x+2, pixel.y+2, RADIUS_MOVE_DRAW,color);
-
-
+        if(initSpeed!=0){
+            if(side==RIGHT)
+                al_draw_filled_circle(pixel.x+SIZE_TILE-4, pixel.y+2, RADIUS_MOVE_DRAW,color);
+            else
+                al_draw_filled_circle(pixel.x+2, pixel.y+2, RADIUS_MOVE_DRAW,color);
+        }
     }
     ALLEGRO_BITMAP* get_bitmap(){
         return image->get_bitmap();
@@ -129,7 +129,7 @@ public:
     int get_hp(){
         return hp;
     }
-    int get_speed(){
+    float get_speed(){
         return speed;
     }
     int get_max_hp(){

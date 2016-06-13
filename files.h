@@ -24,6 +24,8 @@
 #define MAGE_BLUE "bin/imgs/mage_blue.png"
 #define SOLDIER_BLUE "bin/imgs/soldier_blue.png"
 #define SOLDIER_RED "bin/imgs/soldier_red.png"
+#define TOWER_BLUE "bin/imgs/potato.png"
+#define TOWER_RED "bin/imgs/potato.png"
 const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/lightning1.png"},{"bin/imgs/lightning2.png"},{"bin/imgs/lightning3.png"},{"bin/imgs/lightning4.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/fire_arrow1.png"},{"bin/imgs/fire_arrow2.png"},{"bin/imgs/fire_arrow3.png"},{"bin/imgs/fire_arrow4.png"},{"bin/imgs/fire_arrow5.png"},{"bin/imgs/fire_arrow6.png"},{"bin/imgs/fire_arrow7.png"},{"bin/imgs/fire_arrow8.png"},{"bin/imgs/fire_arrow9.png"},{"bin/imgs/fire_arrow10.png"}};
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash1.png"},{"bin/imgs/slash2.png"},{"bin/imgs/slash3.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"}};
@@ -111,6 +113,8 @@ class Animate{
     Image *imgSoldierAttackUp[IMGS_ANIMATE];
     Image *heroArcherRed;
     Image *heroArcherBlue;
+    Image *towerRed;
+    Image *towerBlue;
     Image *imgTarget;
     Image *imgTarget2;
     Image *imgMap;
@@ -131,6 +135,8 @@ public:
         }
         heroArcherBlue = new Image(ARCHER_BLUE);
         heroArcherRed = new Image(ARCHER_RED);
+        towerBlue = new Image(TOWER_BLUE);
+        towerRed = new Image(TOWER_RED);
         imgTarget = new Image(TARGET);
         imgTarget2 = new Image(TARGET2);
         imgMap = new Image(MAPA);
@@ -151,6 +157,8 @@ public:
         }
         delete heroArcherRed;
         delete heroArcherBlue;
+        delete towerBlue;
+        delete towerRed;
         delete imgTarget;
         delete imgTarget2;
         delete imgMap;
@@ -188,6 +196,10 @@ public:
             return heroArcherBlue;
         else if(_class==ARCHER&&team==TWO)
             return heroArcherRed;
+        else if(_class==TOWER&&team==ONE)
+            return towerBlue;
+        else if(_class==TOWER&&team==TWO)
+            return towerRed;
         else
             return NULL;
     }

@@ -42,9 +42,9 @@ public:
             //draw image of menu
             al_draw_bitmap(image[0]->get_bitmap(),0,0,0);
             //print the rectangle of hp
-            int pixels_hp = mapping(hero->get_hp(),0,hero->get_max_hp(),0,200);
-            al_draw_filled_rectangle(90,30,60 + pixels_hp,60,RED);
-            al_draw_rectangle(90,30,61 + 200,61,GREY,1);
+            int pixels_hp = mapping(hero->get_hp(),0,hero->get_max_hp(),0,170);
+            al_draw_filled_rectangle(90,30,90 + pixels_hp,60,RED);
+            al_draw_rectangle(90,30,91 + 170,61,GREY,1);
             char text[MAX_TEXT];
             //print the text of hp
             sprintf(text,"HP %d\\%d",hero->get_hp(),hero->get_max_hp());
@@ -56,7 +56,7 @@ public:
             sprintf(text,"EVASION  %d%%",hero->get_evasion());
             al_draw_text(font->get_font(), WHITE, 550, 25,ALLEGRO_ALIGN_LEFT, text);
             //print the speed
-            sprintf(text,"SPEED  %d",hero->get_speed());
+            sprintf(text,"SPEED  %.1f",hero->get_speed());
             al_draw_text(font->get_font(), WHITE, 750, 25,ALLEGRO_ALIGN_LEFT, text);
             //draw big hero
             al_draw_scaled_bitmap(hero->get_bitmap(),0,0,SIZE_TILE,SIZE_TILE,10,10,SIZE_TILE*2,SIZE_TILE*2,0);
