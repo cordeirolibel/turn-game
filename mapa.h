@@ -11,10 +11,10 @@
 #define HOUSE_MOBILITY 1
 
 #define WEIGHT_MAX 8000
-#define MAX_TEXT 50
+
 int map_matrix[20*40] ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,1,1,
                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,1,
-                        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,
+                        0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,
                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,1,1,1,1,1,1,1,1,
                         2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,
                         2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,
@@ -27,7 +27,7 @@ int map_matrix[20*40] ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,
                         1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,
                         1,1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,
                         1,1,1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,
-                        1,1,1,1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,2,
+                        1,1,1,1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,2,
                         1,1,1,1,1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                         1,1,1,1,1,1,1,1,1,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                         1,1,1,1,1,1,1,1,1,1,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -41,7 +41,7 @@ enum Team{
     ONE=1,TWO
 };
 enum Terrain{
-    GRASS,DIRT,WATER,BRIDGE, STONE, HOUSE
+    GRASS,DIRT,WATER,BRIDGE, STONE, HOUSE1, HOUSE2
 };
 //Find the position of rectangle, pixel to map point
 Point find_rec(Pixel_Point* pixel){
@@ -122,30 +122,35 @@ public:
                     tiles[i][j]->mobility = GRASS_MOBILITY;
                     tiles[i][j]->terrain = GRASS;
                 }
-                if(map_matrix[i*columns+j] == 1){
+                else if(map_matrix[i*columns+j] == 1){
                     //grass tile
                     tiles[i][j]->mobility = DIRT_MOBILITY;
                     tiles[i][j]->terrain = DIRT;
                 }
-                if(map_matrix[i*columns+j] == 2){
+                else if(map_matrix[i*columns+j] == 2){
                     //grass tile
                     tiles[i][j]->mobility = WATER_MOBILITY;
                     tiles[i][j]->terrain = WATER;
                 }
-                if(map_matrix[i*columns+j] == 3){
+                else if(map_matrix[i*columns+j] == 3){
                     //grass tile
                     tiles[i][j]->mobility = BRIDGE_MOBILITY;
                     tiles[i][j]->terrain = BRIDGE;
                 }
-                if(map_matrix[i*columns+j] == 4){
+                else if(map_matrix[i*columns+j] == 4){
                     //grass tile
                     tiles[i][j]->mobility = STONE_MOBILITY;
                     tiles[i][j]->terrain = STONE;
                 }
-                if(map_matrix[i*columns+j] == 5){
+                else if(map_matrix[i*columns+j] == 5){
                     //grass tile
                     tiles[i][j]->mobility = HOUSE_MOBILITY;
-                    tiles[i][j]->terrain = HOUSE;
+                    tiles[i][j]->terrain = HOUSE1;
+                }
+                else if(map_matrix[i*columns+j] == 6){
+                    //grass tile
+                    tiles[i][j]->mobility = HOUSE_MOBILITY;
+                    tiles[i][j]->terrain = HOUSE2;
                 }
             }
         }

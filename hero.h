@@ -3,11 +3,14 @@
 
 #define HP_MAX 50
 #define HP_MAX_BAR_DRAW 13
+#define HP_HOUSE_HEART 10
 #define RADIUS_MOVE_DRAW 2
+
 //defined in screen.h
 class Point;
 class Pixel_Point;
 class Menu;
+class Animate;
 //defined in game.h
 int  mapping(int value,int fromLow, int fromHigh, int toLow, int toHigh);
 
@@ -35,14 +38,12 @@ class Hero{
     int moveTime;
     Point *point;
     Pixel_Point *nextPixel;
-    Image* image;
     int damageDraw;//-1 if not print
     bool attack_flag;
 public:
-    Hero(Image* _image, int x, int y, int _initHp,int _atk,int _evasion, float _speed, Side initSide, Team _team, Class class__,int _rangeAtk=0):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__),rangeAtk(_rangeAtk){
+    Hero(int x, int y, int _initHp,int _atk,int _evasion, float _speed, Side initSide, Team _team, Class class__,int _rangeAtk=0):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__),rangeAtk(_rangeAtk){
         hp = initHp;
         side = initSide;
-        image = _image;
         point = new Point(x,y);
         moveTime = 0;
         damageDraw = -1;
@@ -67,7 +68,7 @@ public:
         attack_flag = flag;
     }
     //draw hero in your position
-    void draw_hero(Map *mapa){
+    void draw_hero(Map *mapa, Animate* animate){
         Pixel_Point pixel = find_rec(point);
         int dx=0,dy=0, delta;
         //if hero is moving
@@ -83,11 +84,27 @@ public:
             else if(nextPixel->y < pixel.y)//next in the up
                 dy=-delta;
         }
-        //draw here he look
-        if(side==RIGHT)
-            al_draw_bitmap(image->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
-        else
-            al_draw_bitmap(image->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,1);
+        //if hero in a house1
+        if(mapa->tiles[point->y-1][point->x-1]->terrain==HOUSE1){
+            if(team==ONE)
+                al_draw_bitmap(animate->get_image("house1 blue")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+            else
+                al_draw_bitmap(animate->get_image("house1 red")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+        }
+        //if hero in a house2
+        else if (mapa->tiles[point->y-1][point->x-1]->terrain==HOUSE2){
+            if(team==ONE)
+                al_draw_bitmap(animate->get_image("house2 blue")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+            else
+                al_draw_bitmap(animate->get_image("house2 red")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+        }
+        else{
+            //draw here he look
+            if(side==RIGHT)
+                al_draw_bitmap(get_bitmap(animate),pixel.x-1+dx,pixel.y-1+dy,0);
+            else
+                al_draw_bitmap(get_bitmap(animate),pixel.x-1+dx,pixel.y-1+dy,1);
+        }
         //draw hp live
         int fit = mapping(hp,0,HP_MAX,0,HP_MAX_BAR_DRAW);
         if(side==RIGHT)
@@ -112,8 +129,18 @@ public:
                 al_draw_filled_circle(pixel.x+2+dx, pixel.y+2+dy, RADIUS_MOVE_DRAW,color);
         }
     }
-    ALLEGRO_BITMAP* get_bitmap(){
-        return image->get_bitmap();
+    ALLEGRO_BITMAP *get_bitmap(Animate* animate){
+        return animate->get_image(class_,team)->get_bitmap();
+    }
+    void live(Map* mapa){
+        //if hero in a house
+        if(mapa->tiles[point->y-1][point->x-1]->terrain==HOUSE1||
+           mapa->tiles[point->y-1][point->x-1]->terrain==HOUSE2){
+            hp+=HP_HOUSE_HEART;
+            if(hp>initHp)
+                hp=initHp;
+        }
+
     }
     int get_damage(){
         return damageDraw;

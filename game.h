@@ -57,6 +57,8 @@ public:
     void init_heroes();
     //update the screen with new informations
     void draw_update();
+    //draw the image of map
+    void draw_map(bool _front);
     //draw all heroes and informations
     void draw_heroes();
     //draw the grid of map
@@ -150,13 +152,13 @@ void Game::draw_update(){
     //clear the buffer of screen
     clear_screen();
     //print map
-    al_draw_bitmap(animate->get_image("map")->get_bitmap(),0,BAR_OPTIONS,0);
+    draw_map(false);
     //print menu bar
-    menu->draw_menu(font_big);
+    menu->draw_menu(font_big, animate);
     //draw all heroes and informations
     draw_heroes();
     //print map front
-    al_draw_bitmap(animate->get_image("map front")->get_bitmap(),0,BAR_OPTIONS,0);
+    draw_map(true);
     //print all rectangles
     draw_rectangles();
     //draw the targets
@@ -166,12 +168,47 @@ void Game::draw_update(){
     //flip the screen
     update_screen();
 }
+//draw the image of map
+void Game::draw_map(bool _front){
+    //draw image of background
+    if(_front==false){
+        //in the morning
+        if((menu->turn%6==0) || (menu->turn%6==1))
+            al_draw_bitmap(animate->get_image("map morning")->get_bitmap(),0,BAR_OPTIONS,0);
+        //in the sundown
+        else if(menu->turn%6==2)
+            al_draw_bitmap(animate->get_image("map sundown")->get_bitmap(),0,BAR_OPTIONS,0);
+        //in the night
+        else if((menu->turn%6==3) || (menu->turn%6==4))
+            al_draw_bitmap(animate->get_image("map night")->get_bitmap(),0,BAR_OPTIONS,0);
+        //in the sunrise
+        else
+            al_draw_bitmap(animate->get_image("map sunrise")->get_bitmap(),0,BAR_OPTIONS,0);
+    }
+    //draw front
+    else{
+        //in the morning
+        if((menu->turn%6==0) || (menu->turn%6==1))
+            al_draw_bitmap(animate->get_image("map front morning")->get_bitmap(),0,BAR_OPTIONS,0);
+        //in the sundown
+        else if(menu->turn%6==2)
+            al_draw_bitmap(animate->get_image("map front sundown")->get_bitmap(),0,BAR_OPTIONS,0);
+        //in the night
+        else if((menu->turn%6==3) || (menu->turn%6==4))
+            al_draw_bitmap(animate->get_image("map front night")->get_bitmap(),0,BAR_OPTIONS,0);
+        //in the sunrise
+        else
+            al_draw_bitmap(animate->get_image("map front sunrise")->get_bitmap(),0,BAR_OPTIONS,0);
+    }
+
+}
+
 //draw all heroes and informations
 void Game::draw_heroes(){
     int damage;
     //draw all heroes
     for(int i=0;i<Hero::get_num_of_heroes(); i++)
-        heroes[i]->draw_hero(mapa);
+        heroes[i]->draw_hero(mapa, animate);
     //draw attack of heroes
     if(attackDraw!=NULL)
         al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
@@ -453,6 +490,8 @@ void Game::next_turn(){
     sounds->play("button");
     //clear any tile selected
     mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
+    //cont of turns
+    menu->turn++;
     //in the last click selected a hero
     if(heroFlag){
         //clear all information of the hero in menu and clear your space walk
@@ -468,13 +507,17 @@ void Game::next_turn(){
         turnTeam = TWO;
     else
         turnTeam = ONE;
-    //set anything hero is attacker
+    //heroes update
     for(int i=0;i<Hero::get_num_of_heroes();i++){
+        //set anything hero is attacker
         if(heroes[i]->get_team()==turnTeam)
             heroes[i]->set_attack_flag(false);
         else
             heroes[i]->set_attack_flag(true);
+        //set the speed of heroes
         heroes[i]->reset_speed(turnTeam);
+        //if hero in a house, more live
+        heroes[i]->live(mapa);
     }
 }
 
@@ -653,7 +696,8 @@ int Game::delete_hero(){
         heroes[i]=heroes[i+1];
     //cont how many heroes exist in each team and check tower is full
     for(i=0;i<Hero::get_num_of_heroes();i++){
-        teams[heroes[i]->get_team()-1]++;
+        if(heroes[i]->get_class()!=TOWER)
+            teams[heroes[i]->get_team()-1]++;
         if(heroes[i]->get_class()==TOWER)
             towers[heroes[i]->get_team()-1]=true;
     }
@@ -691,53 +735,53 @@ void Game::init_heroes(){
     //TEAM 1
     //soldiers team 1
     x=2;y=12;
-    heroes[0] = new Hero(animate->get_image(SOLDIER,ONE),x,y,40,10,30,6,RIGHT,ONE,SOLDIER);
+    heroes[0] = new Hero(x,y,40,10,30,6,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[0];
     x=5;y=15;
-    heroes[1] = new Hero(animate->get_image(SOLDIER,ONE),x,y,40,10,30,6,RIGHT,ONE,SOLDIER);
+    heroes[1] = new Hero(x,y,40,10,30,6,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[1];
     x=8;y=18;
-    heroes[2] = new Hero(animate->get_image(SOLDIER,ONE),x,y,40,10,30,6,RIGHT,ONE,SOLDIER);
+    heroes[2] = new Hero(x,y,40,10,30,6,RIGHT,ONE,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[2];
     //mages team 1
     x=3;y=17;
-    heroes[3] = new Hero(animate->get_image(MAGE,ONE),x,y,35,18,20,5,RIGHT,ONE,MAGE,3);
+    heroes[3] = new Hero(x,y,35,18,20,5,RIGHT,ONE,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[3];
     //archers team 1
     x=3;y=14;
-    heroes[4] = new Hero(animate->get_image(ARCHER,ONE),x,y,30,7,40,7,RIGHT,ONE,ARCHER,2);
+    heroes[4] = new Hero(x,y,30,7,40,7,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[4];
     x=6;y=17;
-    heroes[5] = new Hero(animate->get_image(ARCHER,ONE),x,y,30,7,40,7,RIGHT,ONE,ARCHER,2);
+    heroes[5] = new Hero(x,y,30,7,40,7,RIGHT,ONE,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[5];
     //tower team 1
     x=2;y=18;
-    heroes[6] = new Hero(animate->get_image(TOWER,ONE),x,y,100,0,0,0,RIGHT,ONE,TOWER,2);
+    heroes[6] = new Hero(x,y,100,0,0,0,RIGHT,ONE,TOWER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[6];
     //TEAM 2
     //soldiers team 2
     x=33;y=2;
-    heroes[7] = new Hero(animate->get_image(SOLDIER,TWO),x,y,40,10,25,6,LEFT,TWO,SOLDIER);
+    heroes[7] = new Hero(x,y,40,10,25,6,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[7];
     x=36;y=5;
-    heroes[8] = new Hero(animate->get_image(SOLDIER,TWO),x,y,40,10,30,6,LEFT,TWO,SOLDIER);
+    heroes[8] = new Hero(x,y,40,10,30,6,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[8];
     x=39;y=8;
-    heroes[9] = new Hero(animate->get_image(SOLDIER,TWO),x,y,40,10,30,6,LEFT,TWO,SOLDIER);
+    heroes[9] = new Hero(x,y,40,10,30,6,LEFT,TWO,SOLDIER);
     mapa->tiles[y-1][x-1]->hero = heroes[9];
     //mages team 2
     x=38;y=3;
-    heroes[10] = new Hero(animate->get_image(MAGE,TWO),x,y,35,18,25,5,LEFT,TWO,MAGE,3);
+    heroes[10] = new Hero(x,y,35,18,25,5,LEFT,TWO,MAGE,3);
     mapa->tiles[y-1][x-1]->hero = heroes[10];
     //archers team 2
     x=35;y=3;
-    heroes[11] = new Hero(animate->get_image(ARCHER,TWO),x,y,30,7,25,7,LEFT,TWO,ARCHER,2);
+    heroes[11] = new Hero(x,y,30,7,25,7,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[11];
     x=38;y=6;
-    heroes[12] = new Hero(animate->get_image(ARCHER,TWO),x,y,30,7,30,7,LEFT,TWO,ARCHER,2);
+    heroes[12] = new Hero(x,y,30,7,30,7,LEFT,TWO,ARCHER,2);
     mapa->tiles[y-1][x-1]->hero = heroes[12];
     //tower team 2
     x=39;y=2;
-    heroes[13] = new Hero(animate->get_image(TOWER,TWO),x,y,100,0,0,0,LEFT,TWO,TOWER,2);
-    mapa->tiles[y-1][x-1]->hero = heroes[13];//*/
+    heroes[13] = new Hero(x,y,100,0,0,0,LEFT,TWO,TOWER,2);
+    mapa->tiles[y-1][x-1]->hero = heroes[13];
 }

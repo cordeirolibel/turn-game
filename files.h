@@ -15,6 +15,7 @@
 #define WATER_SOUND "bin/sounds/footstep-water-05.ogg"
 #define GRASS_SOUND "bin/sounds/footstep-dirt-05.ogg"
 #define BRIDGE_SOUND "bin/sounds/footstep-wood.ogg"
+#define DOOR_SOUND "bin/sounds/footstep-wood.ogg"
 
 //files images
 #define ARCHER_BLUE "bin/imgs/archer_blue.png"
@@ -25,20 +26,34 @@
 #define SOLDIER_RED "bin/imgs/soldier_red.png"
 #define TOWER_BLUE "bin/imgs/tower_blue.png"
 #define TOWER_RED "bin/imgs/tower_red.png"
+#define HOUSE1_RED "bin/imgs/house1_red.png"
+#define HOUSE1_BLUE "bin/imgs/house1_blue.png"
+#define HOUSE2_RED "bin/imgs/house2_red.png"
+#define HOUSE2_BLUE "bin/imgs/house2_blue.png"
 const char MAGE_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/lightning1.png"},{"bin/imgs/lightning2.png"},{"bin/imgs/lightning3.png"},{"bin/imgs/lightning4.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"},{"bin/imgs/lightning5.png"},{"bin/imgs/lightning6.png"}};
 const char ARCHER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/fire_arrow1.png"},{"bin/imgs/fire_arrow2.png"},{"bin/imgs/fire_arrow3.png"},{"bin/imgs/fire_arrow4.png"},{"bin/imgs/fire_arrow5.png"},{"bin/imgs/fire_arrow6.png"},{"bin/imgs/fire_arrow7.png"},{"bin/imgs/fire_arrow8.png"},{"bin/imgs/fire_arrow9.png"},{"bin/imgs/fire_arrow10.png"}};
 const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash1.png"},{"bin/imgs/slash2.png"},{"bin/imgs/slash3.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"},{"bin/imgs/slash4.png"}};
 const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash21.png"},{"bin/imgs/slash22.png"},{"bin/imgs/slash23.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"}};
 #define TARGET "bin/imgs/target.png"
 #define TARGET2 "bin/imgs/target2.png"
-#define MAPA "bin/imgs/map.png"
-#define MAPA_FRONT "bin/imgs/map_front.png"
+#define MAPA_MORNING "bin/imgs/map_morning.png"
+#define MAPA_FRONT_MORNING "bin/imgs/map_front_morning.png"
+#define MAPA_SUNDOWN "bin/imgs/map_sundown.png"
+#define MAPA_FRONT_SUNDOWN "bin/imgs/map_front_sundown.png"
+#define MAPA_NIGHT "bin/imgs/map_night.png"
+#define MAPA_FRONT_NIGHT "bin/imgs/map_front_night.png"
+#define MAPA_SUNRISE "bin/imgs/map_sunrise.png"
+#define MAPA_FRONT_SUNRISE "bin/imgs/map_front_sunrise.png"
 #define CURSOR "bin/imgs/cursor.png"
 #define VICTORY "bin/imgs/victory.png"
+const char BUTTON[2][MAX_TEXT]={{"bin/imgs/button1.png"},{"bin/imgs/button2.png"}};
+const char MENU[2][MAX_TEXT]={{"bin/imgs/menu.png"},{"bin/imgs/menu_clear.png"}};
 
 using namespace irrklang;
 // link with irrKlang.dll
 //#pragma comment(lib, "irrKlang.lib")
+
+//class Class;
 
 class Sounds{
     ISoundEngine* engine;
@@ -70,6 +85,8 @@ public:
             engine->play2D(WATER_SOUND);
         else if(!name.compare("walk bridge"))
             engine->play2D(BRIDGE_SOUND);
+        else if(!name.compare("walk house"))
+            engine->play2D(DOOR_SOUND);
         else if(!name.compare("fire bow"))
             engine->play2D(FIRE_BOW);
         else if(!name.compare("fire bow miss"))
@@ -108,8 +125,10 @@ public:
     }
     //play specific sound of class defined by terrain
     void play(Terrain terrain){
-        if((terrain == DIRT)||(terrain == HOUSE))
+        if(terrain == DIRT)
             play("walk dirt");
+        else if((terrain == HOUSE1)||(terrain == HOUSE2))
+            play("walk house");
         else if(terrain == GRASS)
             play("walk grass");
         else if(terrain == WATER)
@@ -132,12 +151,24 @@ class Animate{
     Image *heroArcherBlue;
     Image *towerRed;
     Image *towerBlue;
+    Image *house1Red;
+    Image *house1Blue;
+    Image *house2Red;
+    Image *house2Blue;
     Image *imgTarget;
     Image *imgTarget2;
-    Image *imgMap;
-    Image *imgMapFront;
+    Image *imgMapMorning;
+    Image *imgMapFrontMorning;
+    Image *imgMapSundown;
+    Image *imgMapFrontSundown;
+    Image *imgMapNight;
+    Image *imgMapFrontNight;
+    Image *imgMapSunrise;
+    Image *imgMapFrontSunrise;
     Image *imgCursor;
     Image *imgvictory;
+    Image *button[2];
+    Image *menu[2];
 public:
     Animate(){
         //allocate all images
@@ -155,12 +186,26 @@ public:
         heroArcherRed = new Image(ARCHER_RED);
         towerBlue = new Image(TOWER_BLUE);
         towerRed = new Image(TOWER_RED);
+        house1Red = new Image(HOUSE1_RED);
+        house1Blue = new Image(HOUSE1_BLUE);
+        house2Red = new Image(HOUSE2_RED);
+        house2Blue = new Image(HOUSE2_BLUE);
         imgTarget = new Image(TARGET);
         imgTarget2 = new Image(TARGET2);
-        imgMap = new Image(MAPA);
-        imgMapFront = new Image(MAPA_FRONT);
+        imgMapMorning = new Image(MAPA_MORNING);
+        imgMapFrontMorning = new Image(MAPA_FRONT_MORNING);
+        imgMapSundown = new Image(MAPA_SUNDOWN);
+        imgMapFrontSundown = new Image(MAPA_FRONT_SUNDOWN);
+        imgMapNight = new Image(MAPA_NIGHT);
+        imgMapFrontNight = new Image(MAPA_FRONT_NIGHT);
+        imgMapSunrise = new Image(MAPA_SUNRISE);
+        imgMapFrontSunrise = new Image(MAPA_FRONT_SUNRISE);
         imgCursor = new Image(CURSOR);
         imgvictory = new Image(VICTORY);
+        button[0] = new Image(BUTTON[0]);
+        button[1] = new Image(BUTTON[1]);
+        menu[0] = new Image(MENU[0]);
+        menu[1] = new Image(MENU[1]);
     }
     ~Animate(){
         //deallocate all images
@@ -178,27 +223,69 @@ public:
         delete heroArcherBlue;
         delete towerBlue;
         delete towerRed;
+        delete house1Red;
+        delete house1Blue;
+        delete house2Red;
+        delete house2Blue;
         delete imgTarget;
         delete imgTarget2;
-        delete imgMap;
-        delete imgMapFront;
+        delete imgMapMorning;
+        delete imgMapFrontMorning;
+        delete imgMapSundown;
+        delete imgMapFrontSundown;
+        delete imgMapNight;
+        delete imgMapFrontNight;
+        delete imgMapSunrise;
+        delete imgMapFrontSunrise;
         delete imgCursor;
         delete imgvictory;
+        delete button[0];
+        delete button[1];
+        delete menu[0];
+        delete menu[1];
     }
     //return image
     Image *get_image(string name){
-        if(!name.compare("map"))
-            return imgMap;
-        else if(!name.compare("map front"))
-            return imgMapFront;
+        if(!name.compare("map morning"))
+            return imgMapMorning;
+        else if(!name.compare("map sundown"))
+            return imgMapSundown;
+        else if(!name.compare("map night"))
+            return imgMapNight;
+        else if(!name.compare("map sunrise"))
+            return imgMapSunrise;
+        else if(!name.compare("map front morning"))
+            return imgMapFrontMorning;
+        else if(!name.compare("map front sundown"))
+            return imgMapFrontSundown;
+        else if(!name.compare("map front night"))
+            return imgMapFrontNight;
+        else if(!name.compare("map front sunrise"))
+            return imgMapFrontSunrise;
         else if(!name.compare("cursor"))
             return imgCursor;
         else if(!name.compare("target"))
             return imgTarget;
         else if(!name.compare("target2"))
             return imgTarget2;
+        else if(!name.compare("house1 red"))
+            return house1Red;
+        else if(!name.compare("house1 blue"))
+            return house1Blue;
+        else if(!name.compare("house2 red"))
+            return house2Red;
+        else if(!name.compare("house2 blue"))
+            return house2Blue;
         else if(!name.compare("victory"))
             return imgvictory;
+        else if(!name.compare("button"))
+            return button[0];
+        else if(!name.compare("button press"))
+            return button[1];
+        else if(!name.compare("menu"))
+            return menu[0];
+        else if(!name.compare("menu clear"))
+            return menu[1];
         else{
             cout << "Failed to open \"" << name << "\" image\n";
             return NULL;

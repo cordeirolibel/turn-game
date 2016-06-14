@@ -3,9 +3,10 @@
 
 #include "screen.h"
 #include "mapa.h"
+#include "files.h"
 #include "hero.h"
 #include "menu.h"
-#include "files.h"
+
 #include "game.h"
 
 using namespace std;
