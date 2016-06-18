@@ -12,6 +12,11 @@
 
 #define WEIGHT_MAX 8000
 
+#define MORNING_COLOR WHITE
+#define SUNDOWN_COLOR al_map_rgb(255,192,128)
+#define NIGHT_COLOR LIGHTBLUE
+#define SUNRISE_COLOR al_map_rgb(224,192,192)
+
 int map_matrix[20*40] ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,1,1,
                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,1,
                         0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1,
@@ -42,6 +47,9 @@ enum Team{
 };
 enum Terrain{
     GRASS,DIRT,WATER,BRIDGE, STONE, HOUSE1, HOUSE2
+};
+enum Period{
+    MORNING, SUNDOWN, NIGHT,SUNRISE
 };
 //Find the position of rectangle, pixel to map point
 Point find_rec(Pixel_Point* pixel){

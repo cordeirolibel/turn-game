@@ -15,7 +15,9 @@
 #define WATER_SOUND "bin/sounds/footstep-water-05.ogg"
 #define GRASS_SOUND "bin/sounds/footstep-dirt-05.ogg"
 #define BRIDGE_SOUND "bin/sounds/footstep-wood.ogg"
-#define DOOR_SOUND "bin/sounds/footstep-wood.ogg"
+#define DOOR_SOUND "bin/sounds/footstep-door.ogg"
+#define MORNING_SOUND "bin/sounds/morning.ogg"
+#define NIGHT_SOUND "bin/sounds/night.ogg"
 
 //files images
 #define ARCHER_BLUE "bin/imgs/archer_blue.png"
@@ -36,14 +38,8 @@ const char SOLDIER_ATTACK[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash1.png"},{"bi
 const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash21.png"},{"bin/imgs/slash22.png"},{"bin/imgs/slash23.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"},{"bin/imgs/slash24.png"}};
 #define TARGET "bin/imgs/target.png"
 #define TARGET2 "bin/imgs/target2.png"
-#define MAPA_MORNING "bin/imgs/map_morning.png"
-#define MAPA_FRONT_MORNING "bin/imgs/map_front_morning.png"
-#define MAPA_SUNDOWN "bin/imgs/map_sundown.png"
-#define MAPA_FRONT_SUNDOWN "bin/imgs/map_front_sundown.png"
-#define MAPA_NIGHT "bin/imgs/map_night.png"
-#define MAPA_FRONT_NIGHT "bin/imgs/map_front_night.png"
-#define MAPA_SUNRISE "bin/imgs/map_sunrise.png"
-#define MAPA_FRONT_SUNRISE "bin/imgs/map_front_sunrise.png"
+#define MAPA "bin/imgs/map.png"
+#define MAPA_FRONT "bin/imgs/map_front.png"
 #define CURSOR "bin/imgs/cursor.png"
 #define VICTORY "bin/imgs/victory.png"
 const char BUTTON[2][MAX_TEXT]={{"bin/imgs/button1.png"},{"bin/imgs/button2.png"}};
@@ -53,7 +49,6 @@ using namespace irrklang;
 // link with irrKlang.dll
 //#pragma comment(lib, "irrKlang.lib")
 
-//class Class;
 
 class Sounds{
     ISoundEngine* engine;
@@ -99,6 +94,10 @@ public:
             engine->play2D(SLASH);
         else if(!name.compare("slash miss"))
             engine->play2D(SLASH_MISS);
+        else if(!name.compare("morning"))
+            engine->play2D(MORNING_SOUND);
+        else if(!name.compare("night"))
+            engine->play2D(NIGHT_SOUND);
         else if(!name.compare("victory"))
             engine->play2D(WIN);
         else
@@ -124,10 +123,12 @@ public:
         }
     }
     //play specific sound of class defined by terrain
-    void play(Terrain terrain){
+    void play(Terrain terrain,int number=0){
         if(terrain == DIRT)
             play("walk dirt");
-        else if((terrain == HOUSE1)||(terrain == HOUSE2))
+        else if(((terrain == HOUSE1)||(terrain == HOUSE2))&&(number==0))
+            play("walk bridge");
+        else if(((terrain == HOUSE1)||(terrain == HOUSE2))&&(number==1))
             play("walk house");
         else if(terrain == GRASS)
             play("walk grass");
@@ -136,8 +137,16 @@ public:
         else if(terrain == BRIDGE)
             play("walk bridge");
     }
+    //play specific sound of change the period
+    void play(Period period){
+        if(period==MORNING)
+            play("morning");
+        else if(period==NIGHT)
+            play("night");
+    }
 };
 
+//files of image
 class Animate{
     Image *heroSoldierRed;
     Image *heroSoldierBlue;
@@ -157,14 +166,8 @@ class Animate{
     Image *house2Blue;
     Image *imgTarget;
     Image *imgTarget2;
-    Image *imgMapMorning;
-    Image *imgMapFrontMorning;
-    Image *imgMapSundown;
-    Image *imgMapFrontSundown;
-    Image *imgMapNight;
-    Image *imgMapFrontNight;
-    Image *imgMapSunrise;
-    Image *imgMapFrontSunrise;
+    Image *imgMap;
+    Image *imgMapFront;
     Image *imgCursor;
     Image *imgvictory;
     Image *button[2];
@@ -192,14 +195,8 @@ public:
         house2Blue = new Image(HOUSE2_BLUE);
         imgTarget = new Image(TARGET);
         imgTarget2 = new Image(TARGET2);
-        imgMapMorning = new Image(MAPA_MORNING);
-        imgMapFrontMorning = new Image(MAPA_FRONT_MORNING);
-        imgMapSundown = new Image(MAPA_SUNDOWN);
-        imgMapFrontSundown = new Image(MAPA_FRONT_SUNDOWN);
-        imgMapNight = new Image(MAPA_NIGHT);
-        imgMapFrontNight = new Image(MAPA_FRONT_NIGHT);
-        imgMapSunrise = new Image(MAPA_SUNRISE);
-        imgMapFrontSunrise = new Image(MAPA_FRONT_SUNRISE);
+        imgMap = new Image(MAPA);
+        imgMapFront = new Image(MAPA_FRONT);
         imgCursor = new Image(CURSOR);
         imgvictory = new Image(VICTORY);
         button[0] = new Image(BUTTON[0]);
@@ -229,14 +226,8 @@ public:
         delete house2Blue;
         delete imgTarget;
         delete imgTarget2;
-        delete imgMapMorning;
-        delete imgMapFrontMorning;
-        delete imgMapSundown;
-        delete imgMapFrontSundown;
-        delete imgMapNight;
-        delete imgMapFrontNight;
-        delete imgMapSunrise;
-        delete imgMapFrontSunrise;
+        delete imgMap;
+        delete imgMapFront;
         delete imgCursor;
         delete imgvictory;
         delete button[0];
@@ -246,22 +237,10 @@ public:
     }
     //return image
     Image *get_image(string name){
-        if(!name.compare("map morning"))
-            return imgMapMorning;
-        else if(!name.compare("map sundown"))
-            return imgMapSundown;
-        else if(!name.compare("map night"))
-            return imgMapNight;
-        else if(!name.compare("map sunrise"))
-            return imgMapSunrise;
-        else if(!name.compare("map front morning"))
-            return imgMapFrontMorning;
-        else if(!name.compare("map front sundown"))
-            return imgMapFrontSundown;
-        else if(!name.compare("map front night"))
-            return imgMapFrontNight;
-        else if(!name.compare("map front sunrise"))
-            return imgMapFrontSunrise;
+        if(!name.compare("map"))
+            return imgMap;
+        else if(!name.compare("map front"))
+            return imgMapFront;
         else if(!name.compare("cursor"))
             return imgCursor;
         else if(!name.compare("target"))

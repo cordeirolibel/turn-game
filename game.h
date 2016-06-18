@@ -29,6 +29,8 @@ class Game:public Screen{
     Sounds* sounds;
     Pixel_Point* attackDrawPixel;
     Point* lastTileSelected;
+    Period period;
+    ALLEGRO_COLOR periodColor;
     Team turnTeam;
     bool heroFlag;
 public:
@@ -118,6 +120,8 @@ int Game::initialize(){
     animate = new Animate;
     sounds = new Sounds;
     lastTileSelected = new Point(1,1);
+    period = MORNING;
+    periodColor = WHITE;
     //initialize sounds
     if(sounds->initialize())
         return -1;
@@ -171,36 +175,11 @@ void Game::draw_update(){
 //draw the image of map
 void Game::draw_map(bool _front){
     //draw image of background
-    if(_front==false){
-        //in the morning
-        if((menu->turn%6==0) || (menu->turn%6==1))
-            al_draw_bitmap(animate->get_image("map morning")->get_bitmap(),0,BAR_OPTIONS,0);
-        //in the sundown
-        else if(menu->turn%6==2)
-            al_draw_bitmap(animate->get_image("map sundown")->get_bitmap(),0,BAR_OPTIONS,0);
-        //in the night
-        else if((menu->turn%6==3) || (menu->turn%6==4))
-            al_draw_bitmap(animate->get_image("map night")->get_bitmap(),0,BAR_OPTIONS,0);
-        //in the sunrise
-        else
-            al_draw_bitmap(animate->get_image("map sunrise")->get_bitmap(),0,BAR_OPTIONS,0);
-    }
+    if(_front==false)
+        al_draw_tinted_bitmap(animate->get_image("map")->get_bitmap(),periodColor,0,BAR_OPTIONS,0);
     //draw front
-    else{
-        //in the morning
-        if((menu->turn%6==0) || (menu->turn%6==1))
-            al_draw_bitmap(animate->get_image("map front morning")->get_bitmap(),0,BAR_OPTIONS,0);
-        //in the sundown
-        else if(menu->turn%6==2)
-            al_draw_bitmap(animate->get_image("map front sundown")->get_bitmap(),0,BAR_OPTIONS,0);
-        //in the night
-        else if((menu->turn%6==3) || (menu->turn%6==4))
-            al_draw_bitmap(animate->get_image("map front night")->get_bitmap(),0,BAR_OPTIONS,0);
-        //in the sunrise
-        else
-            al_draw_bitmap(animate->get_image("map front sunrise")->get_bitmap(),0,BAR_OPTIONS,0);
-    }
-
+    else
+        al_draw_tinted_bitmap(animate->get_image("map front")->get_bitmap(),periodColor,0,BAR_OPTIONS,0);
 }
 
 //draw all heroes and informations
@@ -208,7 +187,7 @@ void Game::draw_heroes(){
     int damage;
     //draw all heroes
     for(int i=0;i<Hero::get_num_of_heroes(); i++)
-        heroes[i]->draw_hero(mapa, animate);
+        heroes[i]->draw_hero(mapa, animate,periodColor);
     //draw attack of heroes
     if(attackDraw!=NULL)
         al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
@@ -492,6 +471,35 @@ void Game::next_turn(){
     mapa->tiles[lastTileSelected->y-1][lastTileSelected->x-1]->set_color(BLACK);
     //cont of turns
     menu->turn++;
+    //===set the period
+    int turnMod = menu->turn%12;
+    Period newPeriod;
+    //in the morning
+    if(turnMod<4){
+        newPeriod = MORNING;
+        periodColor = MORNING_COLOR;
+    }
+    //in the sundown
+    else if((turnMod>=4)&&(turnMod<6)){
+        newPeriod = SUNDOWN;
+        periodColor = SUNDOWN_COLOR;
+    }
+    //in the night
+    else if((turnMod>=6)&&(turnMod<10)){
+        newPeriod = NIGHT;
+        periodColor = NIGHT_COLOR;
+    }
+    //in the sunrise
+    else{
+        newPeriod = SUNRISE;
+        periodColor = SUNRISE_COLOR;
+    }
+    //change the period
+    if(newPeriod!=period){
+        sounds->play(newPeriod);
+        period=newPeriod;
+    }
+    //===
     //in the last click selected a hero
     if(heroFlag){
         //clear all information of the hero in menu and clear your space walk
@@ -647,6 +655,9 @@ void Game::move_hero(Tile* actualTile, Tile* nextTile){
         //change to moveHero to hero, to no conflict in the route
         actualTile->hero = actualTile->moveHero;
         actualTile->moveHero = NULL;
+        //play sound of door
+        if((actualTile->terrain==HOUSE1)||(actualTile->terrain==HOUSE2))
+            sounds->play(actualTile->terrain, 1);
         return;
     }
     //set the time of move and wait

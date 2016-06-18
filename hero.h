@@ -68,7 +68,7 @@ public:
         attack_flag = flag;
     }
     //draw hero in your position
-    void draw_hero(Map *mapa, Animate* animate){
+    void draw_hero(Map *mapa, Animate* animate, ALLEGRO_COLOR Turncolor){
         Pixel_Point pixel = find_rec(point);
         int dx=0,dy=0, delta;
         //if hero is moving
@@ -87,23 +87,23 @@ public:
         //if hero in a house1
         if(mapa->tiles[point->y-1][point->x-1]->terrain==HOUSE1){
             if(team==ONE)
-                al_draw_bitmap(animate->get_image("house1 blue")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+                al_draw_tinted_bitmap(animate->get_image("house1 blue")->get_bitmap(),Turncolor,pixel.x-1+dx,pixel.y-1+dy,0);
             else
-                al_draw_bitmap(animate->get_image("house1 red")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+                al_draw_tinted_bitmap(animate->get_image("house1 red")->get_bitmap(),Turncolor,pixel.x-1+dx,pixel.y-1+dy,0);
         }
         //if hero in a house2
         else if (mapa->tiles[point->y-1][point->x-1]->terrain==HOUSE2){
             if(team==ONE)
-                al_draw_bitmap(animate->get_image("house2 blue")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+                al_draw_tinted_bitmap(animate->get_image("house2 blue")->get_bitmap(),Turncolor,pixel.x-1+dx,pixel.y-1+dy,0);
             else
-                al_draw_bitmap(animate->get_image("house2 red")->get_bitmap(),pixel.x-1+dx,pixel.y-1+dy,0);
+                al_draw_tinted_bitmap(animate->get_image("house2 red")->get_bitmap(),Turncolor,pixel.x-1+dx,pixel.y-1+dy,0);
         }
         else{
             //draw here he look
             if(side==RIGHT)
-                al_draw_bitmap(get_bitmap(animate),pixel.x-1+dx,pixel.y-1+dy,0);
+                al_draw_tinted_bitmap(get_bitmap(animate),Turncolor,pixel.x-1+dx,pixel.y-1+dy,0);
             else
-                al_draw_bitmap(get_bitmap(animate),pixel.x-1+dx,pixel.y-1+dy,1);
+                al_draw_tinted_bitmap(get_bitmap(animate),Turncolor,pixel.x-1+dx,pixel.y-1+dy,1);
         }
         //draw hp live
         int fit = mapping(hp,0,HP_MAX,0,HP_MAX_BAR_DRAW);
