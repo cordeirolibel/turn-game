@@ -27,7 +27,7 @@ public:
         buttonPress = false;
     }
     //draw all configuration of menu
-    void draw_menu(Font* font, Animate* animate){
+    void draw_menu(Font* font, Animate* animate, Period period){
         char text[MAX_TEXT];
         //if hero is selected
         if(hero != NULL){
@@ -41,7 +41,7 @@ public:
             sprintf(text,"HP %d\\%d",hero->get_hp(),hero->get_max_hp());
             al_draw_text(font->get_font(), WHITE, 270, 25,ALLEGRO_ALIGN_LEFT, text);
             //print the atk
-            sprintf(text,"ATK  %d",hero->get_atk());
+            sprintf(text,"ATK  %d",hero->get_atk(period));
             al_draw_text(font->get_font(), WHITE, 420, 25,ALLEGRO_ALIGN_LEFT, text);
             //print the evasion
             sprintf(text,"EVASION  %d%%",hero->get_evasion());

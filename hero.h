@@ -5,7 +5,7 @@
 #define HP_MAX_BAR_DRAW 13
 #define HP_HOUSE_HEART 10
 #define RADIUS_MOVE_DRAW 2
-
+#define PERCENT_ATTACK_PERIOD 0.2//20%
 //defined in screen.h
 class Point;
 class Pixel_Point;
@@ -39,7 +39,7 @@ class Hero{
     Point *point;
     Pixel_Point *nextPixel;
     int damageDraw;//-1 if not print
-    bool attack_flag;
+    bool attackFlag;
 public:
     Hero(int x, int y, int _initHp,int _atk,int _evasion, float _speed, Side initSide, Team _team, Class class__,int _rangeAtk=0):initSpeed(_speed),team(_team),initHp(_initHp),atk(_atk),evasion(_evasion),class_(class__),rangeAtk(_rangeAtk){
         hp = initHp;
@@ -47,7 +47,7 @@ public:
         point = new Point(x,y);
         moveTime = 0;
         damageDraw = -1;
-        attack_flag = true;
+        attackFlag = true;
         speed = initSpeed;
         nextPixel = NULL;
         //some the new hero class
@@ -62,10 +62,10 @@ public:
     friend Pixel_Point Map::get_hero_pixel_point(Hero* hero);
     //return true if the hero attacker in this turn
     bool get_attack_flag(){
-        return attack_flag;
+        return attackFlag;
     }
     void set_attack_flag(bool flag){
-        attack_flag = flag;
+        attackFlag = flag;
     }
     //draw hero in your position
     void draw_hero(Map *mapa, Animate* animate, ALLEGRO_COLOR Turncolor){
@@ -117,7 +117,7 @@ public:
             color=GREEN;
         else if(you_can_walk(point,mapa,speed))
             color=YELLOW;
-        else if(attack_flag==false)
+        else if(attackFlag==false)
             color=GREY;
         else
             color=BLACK;
@@ -142,7 +142,7 @@ public:
         }
 
     }
-    int get_damage(){
+    int get_damage(Period period){
         return damageDraw;
     }
     Side get_side(){
@@ -157,7 +157,24 @@ public:
     void set_damage(int _damage){
         damageDraw = _damage;
     }
-    int get_atk(){
+    //return the atk independent of the cycle day
+    int get_real_atk(){
+        return atk;
+    }
+    //return the atk corresponding of the cycle day
+    int get_atk(Period period){
+        //mage is strong in the night
+        if((class_==MAGE)&&(period==NIGHT))
+            return round(atk*(1+PERCENT_ATTACK_PERIOD));
+        //mage is weak in the morning
+        else if((class_==MAGE)&&(period==MORNING))
+            return round(atk*(1-PERCENT_ATTACK_PERIOD));
+        //archer is weak in the night
+        if((class_==ARCHER)&&(period==NIGHT))
+            return round(atk*(1-PERCENT_ATTACK_PERIOD));
+        //mage is strong in the morning
+        else if((class_==ARCHER)&&(period==MORNING))
+            return round(atk*(1+PERCENT_ATTACK_PERIOD));
         return atk;
     }
     int get_range_atk(){
