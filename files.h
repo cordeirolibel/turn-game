@@ -40,6 +40,8 @@ const char SOLDIER_ATTACK_UP[IMGS_ANIMATE][MAX_TEXT]= {{"bin/imgs/slash21.png"},
 #define TARGET2 "bin/imgs/target2.png"
 #define MAPA "bin/imgs/map.png"
 #define MAPA_FRONT "bin/imgs/map_front.png"
+#define SUN "bin/imgs/sun.png"
+#define MOON "bin/imgs/moon.png"
 #define CURSOR "bin/imgs/cursor.png"
 #define VICTORY "bin/imgs/victory.png"
 const char BUTTON[2][MAX_TEXT]={{"bin/imgs/button1.png"},{"bin/imgs/button2.png"}};
@@ -168,6 +170,8 @@ class Animate{
     Image *imgTarget2;
     Image *imgMap;
     Image *imgMapFront;
+    Image *sun;
+    Image *moon;
     Image *imgCursor;
     Image *imgvictory;
     Image *button[2];
@@ -197,6 +201,8 @@ public:
         imgTarget2 = new Image(TARGET2);
         imgMap = new Image(MAPA);
         imgMapFront = new Image(MAPA_FRONT);
+        sun = new Image(SUN);
+        moon = new Image(MOON);
         imgCursor = new Image(CURSOR);
         imgvictory = new Image(VICTORY);
         button[0] = new Image(BUTTON[0]);
@@ -228,6 +234,8 @@ public:
         delete imgTarget2;
         delete imgMap;
         delete imgMapFront;
+        delete sun;
+        delete moon;
         delete imgCursor;
         delete imgvictory;
         delete button[0];
@@ -255,6 +263,10 @@ public:
             return house2Red;
         else if(!name.compare("house2 blue"))
             return house2Blue;
+        else if(!name.compare("sun"))
+            return sun;
+        else if(!name.compare("moon"))
+            return moon;
         else if(!name.compare("victory"))
             return imgvictory;
         else if(!name.compare("button"))

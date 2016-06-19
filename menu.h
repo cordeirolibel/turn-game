@@ -42,7 +42,14 @@ public:
             al_draw_text(font->get_font(), WHITE, 270, 25,ALLEGRO_ALIGN_LEFT, text);
             //print the atk
             sprintf(text,"ATK  %d",hero->get_atk(period));
-            al_draw_text(font->get_font(), WHITE, 420, 25,ALLEGRO_ALIGN_LEFT, text);
+            //attack bonus
+            if(((hero->get_class()==ARCHER)&&(period==MORNING))||((hero->get_class()==MAGE)&&(period==NIGHT)))
+                al_draw_text(font->get_font(), GREEN, 420, 25,ALLEGRO_ALIGN_LEFT, text);
+            //attack less
+            else if(((hero->get_class()==ARCHER)&&(period==NIGHT))||((hero->get_class()==MAGE)&&(period==MORNING)))
+                al_draw_text(font->get_font(), RED, 420, 25,ALLEGRO_ALIGN_LEFT, text);
+            else//normal attack
+                al_draw_text(font->get_font(), WHITE, 420, 25,ALLEGRO_ALIGN_LEFT, text);
             //print the evasion
             sprintf(text,"EVASION  %d%%",hero->get_evasion());
             al_draw_text(font->get_font(), WHITE, 550, 25,ALLEGRO_ALIGN_LEFT, text);
@@ -51,6 +58,11 @@ public:
             al_draw_text(font->get_font(), WHITE, 750, 25,ALLEGRO_ALIGN_LEFT, text);
             //draw big hero
             al_draw_scaled_bitmap(hero->get_bitmap(animate),0,0,SIZE_TILE,SIZE_TILE,10,10,SIZE_TILE*2,SIZE_TILE*2,0);
+            //draw the mini sun or mini moon
+            if(hero->get_class()==ARCHER)
+                al_draw_bitmap(animate->get_image("sun")->get_bitmap(),SIZE_TILE*2,6,0);
+            else if(hero->get_class()==MAGE)
+                al_draw_bitmap(animate->get_image("moon")->get_bitmap(),SIZE_TILE*2,6,0);
         }
         else
             //draw image clear of menu
