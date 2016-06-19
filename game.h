@@ -74,6 +74,11 @@ public:
     void draw_rectangles();
     //draw all targets
     void draw_targets();
+    //draw attack of heroes
+    void draw_attack_heroes(){
+        if(attackDraw!=NULL)
+            al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
+    }
     //updates game when click in tile point
     void tile_click(Point point);
     //update the game for next turn
@@ -174,6 +179,8 @@ void Game::draw_update(){
     draw_map(true);
     //print all rectangles
     draw_rectangles();
+    //draw attack of heroes
+    draw_attack_heroes();
     //draw the targets
     draw_targets();
     //print cursor
@@ -197,9 +204,6 @@ void Game::draw_heroes(){
     //draw all heroes
     for(int i=0;i<Hero::get_num_of_heroes(); i++)
         heroes[i]->draw_hero(mapa, animate,periodColor);
-    //draw attack of heroes
-    if(attackDraw!=NULL)
-        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
     //draw the damage of all heroes
     for(int i=0;i<Hero::get_num_of_heroes(); i++){
         //if hero has received a damage
@@ -214,7 +218,6 @@ void Game::draw_heroes(){
     }
 
 }
-
 //draw the grid of map
 void Game::draw_rectangles(){
     //print all rectangles
