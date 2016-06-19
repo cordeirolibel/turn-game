@@ -3,6 +3,7 @@
 #define DAMAGE_FRAMES_DRAW 2
 
 //files sound
+#define MUSIC1 "bin/sounds/Trisection.ogg"
 #define BUTTON_CLICK "bin/sounds/button.ogg"
 #define WIN "bin/sounds/victory.ogg"
 #define FIRE_BOW "bin/sounds/bow-puny-fire.ogg"
@@ -69,6 +70,10 @@ public:
     ~Sounds(){
         // delete engine
         engine->drop();
+    }
+    void play_music(int number=1){
+        if(number==1)
+            engine->play2D(MUSIC1,true);
     }
     //play the sound defined by "name"
     void play(string name){
@@ -393,3 +398,6 @@ public:
         return NULL;
     }
 };
+
+
+

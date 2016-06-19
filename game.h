@@ -132,6 +132,8 @@ int Game::initialize(){
     //initialize sounds
     if(sounds->initialize())
         return -1;
+    //play the music
+    sounds->play_music();
     //set which team is ini
     int rando = rand()%2;
     if(rando)

@@ -1,5 +1,3 @@
-
-
 const Pixel_Point buttonPixel(1100,15);
 #define BUTTON_SIZE_X 100
 #define BUTTON_SIZE_Y 50
