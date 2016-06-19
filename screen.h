@@ -6,7 +6,7 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
 #include <irrKlang.h>
-#define GAME_NAME "Turno"
+#define GAME_NAME "Battle of Tactics"
 
 #ifdef __linux__
     #define LINUX true
