@@ -75,10 +75,7 @@ public:
     //draw all targets
     void draw_targets();
     //draw attack of heroes
-    void draw_attack_heroes(){
-        if(attackDraw!=NULL)
-            al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
-    }
+    void draw_attack_heroes();
     //updates game when click in tile point
     void tile_click(Point point);
     //update the game for next turn
@@ -203,23 +200,9 @@ void Game::draw_map(bool _front){
 
 //draw all heroes and informations
 void Game::draw_heroes(){
-    int damage;
     //draw all heroes
     for(int i=0;i<Hero::get_num_of_heroes(); i++)
         heroes[i]->draw_hero(mapa, animate,periodColor);
-    //draw the damage of all heroes
-    for(int i=0;i<Hero::get_num_of_heroes(); i++){
-        //if hero has received a damage
-        damage = heroes[i]->get_damage(period);
-        if(damage>0){
-            //draw damage in hero
-            Pixel_Point pixel = find_rec(heroes[i]->get_point());
-            char text[MAX_TEXT];
-            sprintf(text,"%d",damage);
-            al_draw_text(font_medium->get_font(), RED, pixel.x+SIZE_TILE, pixel.y,ALLEGRO_ALIGN_RIGHT, text);
-        }
-    }
-
 }
 //draw the grid of map
 void Game::draw_rectangles(){
@@ -238,6 +221,25 @@ void Game::draw_targets(){
                 else if(mapa->tiles[i][j]->hero->get_team()!=turnTeam)
                     al_draw_bitmap(animate->get_image("target2")->get_bitmap(),mapa->tiles[i][j]->pixel->x,mapa->tiles[i][j]->pixel->y,0);
             }
+}
+
+//draw attack of heroes
+void Game::draw_attack_heroes(){
+    if(attackDraw!=NULL)
+        al_draw_bitmap(attackDraw->get_bitmap(),attackDrawPixel->x,attackDrawPixel->y,attackDraw->side);
+    //draw the damage of all heroes
+    int damage;
+    for(int i=0;i<Hero::get_num_of_heroes(); i++){
+        //if hero has received a damage
+        damage = heroes[i]->get_damage(period);
+        if(damage>0){
+            //draw damage in hero
+            Pixel_Point pixel = find_rec(heroes[i]->get_point());
+            char text[MAX_TEXT];
+            sprintf(text,"%d",damage);
+            al_draw_text(font_medium->get_font(), RED, pixel.x+SIZE_TILE, pixel.y,ALLEGRO_ALIGN_RIGHT, text);
+        }
+    }
 }
 
 //updates mapa when click in tile point
@@ -643,6 +645,7 @@ bool Game::attack(Tile* attacker, Tile* defender){
     attacker->hero->clear_speed();
     //apply damage and check if defender is dead
     if(defender->hero->damage(damage)){
+        sounds->play("die");
         //delete the defender
         delete_hero();
         defender->hero = NULL;

@@ -12,6 +12,7 @@
 #define LIGHTNING_MISS "bin/sounds/lightning-miss.ogg"
 #define SLASH "bin/sounds/axe.ogg"
 #define SLASH_MISS "bin/sounds/miss-3.ogg"
+#define DIE "bin/sounds/human-die-3.ogg"
 #define DIRT_SOUND "bin/sounds/footstep-dirt-08.ogg"
 #define WATER_SOUND "bin/sounds/footstep-water-05.ogg"
 #define GRASS_SOUND "bin/sounds/footstep-dirt-05.ogg"
@@ -107,6 +108,8 @@ public:
             engine->play2D(SLASH);
         else if(!name.compare("slash miss"))
             engine->play2D(SLASH_MISS);
+        else if(!name.compare("die"))
+            engine->play2D(DIE);
         else if(!name.compare("morning"))
             engine->play2D(MORNING_SOUND);
         else if(!name.compare("night"))
