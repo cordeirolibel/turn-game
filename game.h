@@ -641,8 +641,8 @@ bool Game::attack(Tile* attacker, Tile* defender){
         delete_hero();
         defender->hero = NULL;
     }
-    //if both have attacker of long distance or short distance
-    else if(type_attack(defender->hero->get_class())==type_attack(attacker->hero->get_class()))
+    //if both are soldier: retaliation
+    else if((defender->hero->get_class()==SOLDIER)&&(attacker->hero->get_class()==SOLDIER))
         return true;
     //no retaliation
     return false;
