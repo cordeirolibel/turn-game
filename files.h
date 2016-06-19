@@ -55,8 +55,11 @@ using namespace irrklang;
 
 class Sounds{
     ISoundEngine* engine;
+    irrklang::ISound* snd;
+    bool musicState;
 public:
     Sounds(){
+        musicState=true;
     }
     int initialize (){
         // start the sound engine with default parameters
@@ -65,15 +68,18 @@ public:
             printf("Could not startup engine of irrKlang\n");
             return -1; // error starting up the engine
         }
+        //music initialize
+        snd = engine->play2D(MUSIC1,true,musicState);
         return 0;
     }
     ~Sounds(){
         // delete engine
         engine->drop();
     }
-    void play_music(int number=1){
-        if(number==1)
-            engine->play2D(MUSIC1,true);
+    //play and pause the music
+    void play_pause_music(){
+        musicState=!musicState;
+        snd->setIsPaused(musicState);
     }
     //play the sound defined by "name"
     void play(string name){

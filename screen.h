@@ -109,11 +109,11 @@ public:
         return bitmap;
     }
 };
-
-//load font, open the directory in constructor
+//template load font, open the directory in constructor
+template<class FontGen>
 class Font{
-    ALLEGRO_FONT *font;
-public:
+    FontGen *font;
+    public:
     Font(const char* directory, int _size){
         //load font directory
         while(true){
@@ -129,7 +129,7 @@ public:
         //destroy all instance
         al_destroy_font(font);
     }
-    ALLEGRO_FONT *get_font(){
+    FontGen *get_font(){
         return font;
     }
 };

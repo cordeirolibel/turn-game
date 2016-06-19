@@ -24,9 +24,9 @@ int round(float value){
 
 }
 class Game:public Screen{
-    Font *font_big;
-    Font *font_medium;
-    Font *font_short;
+    Font<ALLEGRO_FONT> *font_big;
+    Font<ALLEGRO_FONT> *font_medium;
+    Font<ALLEGRO_FONT> *font_short;
     Map* mapa;
     Menu* menu;
     Hero** heroes;
@@ -114,6 +114,9 @@ public:
     void update_screen(){
         al_flip_display();
     }
+    void play_pause_music(){
+        sounds->play_pause_music();
+    }
     //return the mouse position
     Pixel_Point get_mouse_pixel(){
         return mouse->get_pixel();
@@ -138,7 +141,7 @@ int Game::initialize(){
     if(sounds->initialize())
         return -1;
     //play the music
-    sounds->play_music();
+    sounds->play_pause_music();
     //set which team is ini
     int rando = rand()%2;
     if(rando)
@@ -146,9 +149,9 @@ int Game::initialize(){
     else
         turnTeam = TWO;
     //open the files
-    font_big = new Font(FONT_BIG,SIZE_FONT_BIG);
-    font_medium = new Font(FONT_MEDIUM,SIZE_FONT_MEDIUM);
-    font_short = new Font(FONT_SHORT,SIZE_FONT_SHORT);
+    font_big = new Font<ALLEGRO_FONT>(FONT_BIG,SIZE_FONT_BIG);
+    font_medium = new Font<ALLEGRO_FONT>(FONT_MEDIUM,SIZE_FONT_MEDIUM);
+    font_short = new Font<ALLEGRO_FONT>(FONT_SHORT,SIZE_FONT_SHORT);
     mouse = new Mouse(CURSOR);
     mapa = new Map(COLUMNS_TILE,ROWS_TILE);
     mapa->set_mobility();

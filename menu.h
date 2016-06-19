@@ -25,7 +25,7 @@ public:
         buttonPress = false;
     }
     //draw all configuration of menu
-    void draw_menu(Font* font, Animate* animate, Period period){
+    void draw_menu(Font<ALLEGRO_FONT>* font, Animate* animate, Period period){
         char text[MAX_TEXT];
         //if hero is selected
         if(hero != NULL){

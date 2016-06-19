@@ -1,5 +1,5 @@
 ﻿/**============================================================
-Created in 06/16 by Gabriel Silva e Gustavo Cordeiro
+Created in 06/16 by Gabriel Silva e Gustavo Cordeiro - Version 1
 =============================================================**/
 #include <stdio.h>
 #include <iostream>
@@ -51,6 +51,18 @@ int main(int argc, char **argv){
         //mouse is depress
         else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
             game->depress();
+        //keyboard is depress
+        else if (event.type == ALLEGRO_EVENT_KEY_UP){
+            //space -> next turn
+            if(event.keyboard.keycode==ALLEGRO_KEY_SPACE)
+                game->next_turn();
+            //p-> pause\play music
+            else if(event.keyboard.keycode==ALLEGRO_KEY_P)
+                game->play_pause_music();
+            //Esc -> exit game
+            else if(event.keyboard.keycode==ALLEGRO_KEY_ESCAPE)
+                break;
+        }
         //if press in X (close)
         else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
