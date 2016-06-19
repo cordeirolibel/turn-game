@@ -7,7 +7,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <irrKlang.h>
 #define GAME_NAME "Battle of Tactics"
-
+#define ICON "bin/imgs/icon.png"
 #ifdef __linux__
     #define LINUX true
 #elif _WIN32
@@ -266,6 +266,9 @@ int Screen::initialize(){
         cout << "Failed to create event_queue!\n";
         return -1;
     }
+    //set icon of game
+    Image icon(ICON);
+    al_set_display_icon(display,icon.get_bitmap());
     //hide the cursor of the windows
     al_hide_mouse_cursor(display);
     //Register of events
